@@ -15,7 +15,7 @@ namespace ThreadPoolInternal
 class ThreadPool
 {
 public:
-	explicit ThreadPool(size_t threadsCount = 0, std::function<void()>&& threadPreShutdownTask = nullptr);
+	explicit ThreadPool(size_t threadsCount = 0, std::function<void()>&& threadPreShutdownTask = nullptr, size_t firstThreadIndex = 1);
 
 	~ThreadPool();
 

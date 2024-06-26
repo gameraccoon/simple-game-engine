@@ -53,11 +53,11 @@ struct ThreadPool::Impl
 	std::vector<std::thread> threads;
 };
 
-ThreadPool::ThreadPool(const size_t threadsCount, std::function<void()>&& threadPreShutdownTask)
+ThreadPool::ThreadPool(const size_t threadsCount, std::function<void()>&& threadPreShutdownTask, const size_t firstThreadIndex)
 	: mPimpl(std::make_unique<Impl>())
 	, mThreadPreShutdownTask(std::move(threadPreShutdownTask))
 {
-	spawnThreads(threadsCount);
+	spawnThreads(threadsCount, firstThreadIndex);
 }
 
 ThreadPool::~ThreadPool()
