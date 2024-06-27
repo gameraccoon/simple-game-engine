@@ -9,7 +9,7 @@
 
 #include "EngineCommon/Types/BasicTypes.h"
 
-#include "GameData/Network/ConnectionId.h"
+#include "EngineData/Network/ConnectionId.h"
 
 #include "HAL/Network/NetworkStructs.h"
 

@@ -1,16 +1,12 @@
 #pragma once
 
-#include <array>
 #include <functional>
-#include <memory>
-#include <optional>
 #include <set>
-#include <variant>
 #include <vector>
 
 #include "EngineCommon/Types/BasicTypes.h"
 
-#include "GameData/Network/ConnectionId.h"
+#include "EngineData/Network/ConnectionId.h"
 
 #include "HAL/Network/NetworkStructs.h"
 
