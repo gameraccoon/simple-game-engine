@@ -2,7 +2,7 @@
 
 #include "EngineLogic/Render/RenderThreadManager.h"
 
-#include <SDL_video.h>
+#include <SDL.h>
 #include <algorithm>
 #include <bitset>
 #include <glew/glew.h>
