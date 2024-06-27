@@ -5,6 +5,7 @@
 #ifndef FAKE_NETWORK
 
 #include <steam/steamnetworkingsockets.h>
+#include <steam/steamnetworkingtypes.h>
 #include <steam/isteamnetworkingutils.h>
 
 #include <chrono>
