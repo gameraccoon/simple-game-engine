@@ -12,7 +12,7 @@ StringIdManager gStringIdManagerInstance;
 
 StringId StringIdManager::stringToId(const std::string_view stringValue)
 {
-	const StringId::KeyType hash = hash_64_fnv1a(stringValue.data(), static_cast<const unsigned int>(stringValue.size()));
+	const StringId::KeyType hash = hash_64_fnv1a(stringValue.data(), static_cast<unsigned int>(stringValue.size()));
 	AssertFatal(hash != 0UL, "String hashing result should not be 0: '%s'", stringValue);
 	MAYBE_UNUSED auto [it, hasInserted] = mStringIdsToStringsMap.emplace(hash, stringValue);
 	AssertFatal(hasInserted || it->second == stringValue, "Hash collision for '%s' and '%s'", stringValue, it->second.c_str());
