@@ -11,9 +11,6 @@
 
 #include "HAL/Graphics/SdlSurface.h"
 
-
-static constexpr double MATH_PI = 3.14159265358979323846;
-
 #ifdef CONCURRENT_ACCESS_DETECTION
 namespace HAL
 {
