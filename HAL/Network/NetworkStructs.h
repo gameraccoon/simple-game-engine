@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <optional>
 
 struct SteamNetworkingIPAddr;
@@ -32,7 +33,7 @@ namespace HAL
 			struct Impl;
 
 		private:
-			NetworkAddress(std::unique_ptr<Impl>&& pimpl);
+			explicit NetworkAddress(std::unique_ptr<Impl>&& pimpl);
 
 		private:
 			std::unique_ptr<Impl> mPimpl;
