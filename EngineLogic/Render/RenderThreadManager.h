@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef DISABLE_SDL
+
 #include <memory>
 #include <thread>
 
@@ -40,3 +42,5 @@ private:
 	RenderAccessor mRenderAccessor;
 	std::unique_ptr<std::thread> mRenderThread;
 };
+
+#endif // DISABLE_SDL

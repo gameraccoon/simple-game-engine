@@ -2,6 +2,8 @@
 
 #include "EngineLogic/Render/RenderThreadManager.h"
 
+#ifndef DISABLE_SDL
+
 #include <SDL.h>
 #include <algorithm>
 #include <bitset>
@@ -376,3 +378,5 @@ void RenderThreadManager::RenderThreadFunction(RenderAccessor& renderAccessor, R
 	renderAccessor.scopedProfilerRecords = gtlScopedProfilerData.getAllRecords();
 #endif // ENABLE_SCOPED_PROFILER
 }
+
+#endif // DISABLE_SDL
