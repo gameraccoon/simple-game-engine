@@ -25,6 +25,11 @@ namespace RenderThreadManagerInternal
 	static int gTotalGameInstancesCount = 1;
 	static unsigned int gGameInstancesLeftBitset = (1u << gTotalGameInstancesCount) - 1u;
 
+	static Vector2D CalculateRenderShift(int gameInstanceIdx)
+	{
+		return Vector2D{ 300.0f * static_cast<float>(gameInstanceIdx % 2), 300.0f * static_cast<float>(gameInstanceIdx / 2) };
+	}
+
 	class RenderVisitor
 	{
 	public:
@@ -33,6 +38,7 @@ namespace RenderThreadManagerInternal
 			, mEngine(engine)
 			, mLastSurface(lastSurface)
 			, mGameInstanceIdx(gameInstanceIdx)
+			, mRenderShift(CalculateRenderShift(gameInstanceIdx))
 		{}
 
 		void operator()(BackgroundRenderData&& bgData)
@@ -48,7 +54,7 @@ namespace RenderThreadManagerInternal
 
 			bindSurface(bgSprite->getSurface());
 			Graphics::Render::DrawTiledQuad(
-				bgData.start,
+				bgData.start + mRenderShift,
 				bgData.size,
 				bgData.uv
 			);
@@ -77,7 +83,7 @@ namespace RenderThreadManagerInternal
 
 			const Vector2D drawShift = fanData.start + fanData.size;
 			glm::mat4 transform(1.0f);
-			transform = glm::translate(transform, glm::vec3(drawShift.x, drawShift.y, 0.0f));
+			transform = glm::translate(transform, glm::vec3(drawShift.x + mRenderShift.x, drawShift.y + mRenderShift.y, 0.0f));
 			bindSurface(sprite->getSurface());
 			Graphics::Render::DrawFan(
 				points,
@@ -98,7 +104,7 @@ namespace RenderThreadManagerInternal
 
 			bindSurface(sprite->getSurface());
 			Graphics::Render::DrawQuad(
-				quadData.position,
+				quadData.position + mRenderShift,
 				quadData.size,
 				quadData.anchor,
 				quadData.rotation,
@@ -126,7 +132,7 @@ namespace RenderThreadManagerInternal
 			}
 
 			glm::mat4 transform(1.0f);
-			transform = glm::translate(transform, glm::vec3(polygonData.drawShift.x, polygonData.drawShift.y, 0.0f));
+			transform = glm::translate(transform, glm::vec3(polygonData.drawShift.x + mRenderShift.x, polygonData.drawShift.y + mRenderShift.y, 0.0f));
 			bindSurface(sprite->getSurface());
 			Graphics::Render::DrawFan(polygonData.points, transform, 0.3f);
 		}
@@ -149,7 +155,7 @@ namespace RenderThreadManagerInternal
 			}
 
 			glm::mat4 transform(1.0f);
-			transform = glm::translate(transform, glm::vec3(stripData.drawShift.x, stripData.drawShift.y, 0.0f));
+			transform = glm::translate(transform, glm::vec3(stripData.drawShift.x + mRenderShift.x, stripData.drawShift.y + mRenderShift.y, 0.0f));
 			bindSurface(sprite->getSurface());
 			Graphics::Render::DrawStrip(stripData.points, transform, stripData.alpha);
 		}
@@ -199,6 +205,7 @@ namespace RenderThreadManagerInternal
 		HAL::Engine& mEngine;
 		const Graphics::Surface*& mLastSurface;
 		const int mGameInstanceIdx;
+		const Vector2D mRenderShift;
 	};
 
 	using DataPtr = std::unique_ptr<RenderData>;
