@@ -13,7 +13,7 @@
 #include "EngineCommon/Types/ComplexTypes/UniqueAny.h"
 #include "EngineCommon/Types/String/ResourcePath.h"
 
-#include "GameData/Resources/ResourceHandle.h"
+#include "EngineData/Resources/ResourceHandle.h"
 
 #ifdef CONCURRENT_ACCESS_DETECTION
 namespace HAL

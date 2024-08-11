@@ -12,9 +12,9 @@
 #endif // ENABLE_SCOPED_PROFILER
 
 #include "EngineData/Geometry/Vector2D.h"
+#include "EngineData/Resources/ResourceHandle.h"
 
 #include "GameData/Render/RenderAccessorGameRef.h"
-#include "GameData/Resources/ResourceHandle.h"
 
 #include "HAL/Base/Types.h"
 

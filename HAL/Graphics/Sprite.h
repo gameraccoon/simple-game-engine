@@ -2,7 +2,7 @@
 
 #ifndef DISABLE_SDL
 
-#include "GameData/Resources/Resource.h"
+#include "EngineData/Resources/Resource.h"
 
 #include "HAL/Base/Types.h"
 

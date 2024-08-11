@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "GameData/Resources/Resource.h"
+#include "EngineData/Resources/Resource.h"
 
 struct SDL_Surface;
 class AbsoluteResourcePath;

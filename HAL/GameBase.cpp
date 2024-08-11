@@ -2,7 +2,7 @@
 
 #include "HAL/GameBase.h"
 
-#include "GameUtils/ResourceManagement/ResourceManager.h"
+#include "EngineUtils/ResourceManagement/ResourceManager.h"
 
 namespace HAL
 {

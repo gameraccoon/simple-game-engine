@@ -4,7 +4,7 @@
 
 #include "EngineCommon/Types/String/ResourcePath.h"
 
-#include "GameData/Resources/Resource.h"
+#include "EngineData/Resources/Resource.h"
 
 struct Mix_Chunk;
 
