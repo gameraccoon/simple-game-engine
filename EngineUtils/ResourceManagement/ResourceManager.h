@@ -47,8 +47,8 @@ public:
 	ResourceManager(ResourceManager&&) = delete;
 	ResourceManager& operator=(ResourceManager&&) = delete;
 
-	AbsoluteResourcePath getAbsoluteResourcePath(const RelativeResourcePath& relativePath) const;
-	AbsoluteResourcePath getAbsoluteResourcePath(RelativeResourcePath&& relativePath) const;
+	[[nodiscard]] AbsoluteResourcePath getAbsoluteResourcePath(const RelativeResourcePath& relativePath) const;
+	[[nodiscard]] AbsoluteResourcePath getAbsoluteResourcePath(RelativeResourcePath&& relativePath) const;
 
 	template<typename T, typename... Args>
 	[[nodiscard]] ResourceHandle lockResource(Args&&... args)
@@ -67,28 +67,32 @@ public:
 		if (const auto it = mStorage.idsMap.find(id); it != mStorage.idsMap.end())
 		{
 			++mStorage.resourceLocksCount[it->second];
-			return ResourceHandle(it->second);
+			return ResourceHandle{ it->second };
 		}
 
 		ResourceHandle newHandle = mStorage.createResourceLock(id);
 
 		if constexpr (sizeof...(Args) == 1)
 		{
-			startResourceLoading(std::make_unique<ResourceLoading::ResourceLoad::LoadingData>(
-				newHandle,
-				T::GetInitSteps(),
-				// if it's one argument, pass it normally to create UniqueAny
-				UniqueAny::Create<Args...>(std::forward<Args>(args)...)
-			), currentThread);
+			startResourceLoading(
+				std::make_unique<ResourceLoading::ResourceLoad::LoadingData>(
+					newHandle,
+					// if it's one argument, pass it normally to create UniqueAny
+					T::GetInitSteps(), UniqueAny::Create<Args...>(std::forward<Args>(args)...)
+				),
+				currentThread
+			);
 		}
 		else
 		{
-			startResourceLoading(std::make_unique<ResourceLoading::ResourceLoad::LoadingData>(
-				newHandle,
-				T::GetInitSteps(),
-				// if there are multiple arguments, pack them as tuple
-				UniqueAny::Create<std::tuple<Args...>>(std::forward<Args>(args)...)
-			), currentThread);
+			startResourceLoading(
+				std::make_unique<ResourceLoading::ResourceLoad::LoadingData>(
+					newHandle,
+					// if there are multiple arguments, pack them as a tuple
+					T::GetInitSteps(), UniqueAny::Create<std::tuple<Args...>>(std::forward<Args>(args)...)
+				),
+				currentThread
+			);
 		}
 
 		return newHandle;
@@ -113,7 +117,7 @@ public:
 
 	// for now atlases are always loaded and don't require dependency management
 	// if that ever changes, manage atlases as any other resources and remove this method
-	const std::unordered_map<RelativeResourcePath, ResourceLoading::ResourceStorage::AtlasFrameData>& getAtlasFrames() const;
+	[[nodiscard]] const std::unordered_map<RelativeResourcePath, ResourceLoading::ResourceStorage::AtlasFrameData>& getAtlasFrames() const;
 
 	void startLoadingThread(std::function<void()>&& threadFinalizerFn = nullptr);
 	// this call will wait for the thread to join
