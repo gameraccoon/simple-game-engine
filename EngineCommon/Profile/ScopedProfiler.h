@@ -68,5 +68,7 @@ private:
 // macro generates a unique instance name for us
 #define SCOPED_PROFILER(scopeName) SCOPED_PROFILER_IMPL((scopeName), __COUNTER__)
 #else
-#define SCOPED_PROFILER(scopeName)
+#define SCOPED_PROFILER(scopeName) \
+	do { \
+	} while (0)
 #endif
