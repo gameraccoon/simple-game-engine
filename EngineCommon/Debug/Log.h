@@ -4,6 +4,8 @@
 #include <string>
 #include <mutex>
 
+#include "EngineCommon/Types/String/StringHelpers.h"
+
 /**
  * Class that helps to write log messages
  */
