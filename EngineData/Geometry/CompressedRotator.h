@@ -37,7 +37,7 @@ public:
 		const float zeroToMaxRotation = Utils::DecompressFloatFromIntCL<float, T>(value, 0, MaxRotationFromZero, bitsCount);
 		// convert the value back to the Rotator value range
 		// rotator will by itself normalize the value
-		return Rotator((zeroToMaxRotation <= Rotator::MaxValue) ? zeroToMaxRotation : (zeroToMaxRotation-MaxRotationFromZero));
+		return Rotator((zeroToMaxRotation <= Rotator::MaxValue) ? zeroToMaxRotation : (zeroToMaxRotation - MaxRotationFromZero));
 	}
 
 private:

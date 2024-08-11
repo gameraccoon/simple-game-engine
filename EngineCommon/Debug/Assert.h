@@ -5,7 +5,7 @@
 #include "EngineCommon/Debug/Log.h"
 #include "EngineCommon/Types/String/StringHelpers.h"
 
-using AssertHandlerFn = void(*)();
+using AssertHandlerFn = void (*)();
 
 // to be able to fine-tune behavior of the asserts (e.g. for automated tests)
 extern AssertHandlerFn gGlobalAssertHandler;
@@ -22,29 +22,33 @@ void LogAssertHelper(const char* condition, const char* file, size_t line, const
 }
 
 #ifdef DEBUG_CHECKS
-	#define ReportError(...) \
-		do \
-		{ \
-			LogAssertHelper("false", __FILE__, __LINE__, __VA_ARGS__); \
-			gGlobalAssertHandler(); \
-		} while(0)
+#define ReportError(...) \
+	do \
+	{ \
+		LogAssertHelper("false", __FILE__, __LINE__, __VA_ARGS__); \
+		gGlobalAssertHandler(); \
+	} while (0)
 #else
-	#define ReportError(...) do { } while(0)
+#define ReportError(...) \
+	do { \
+	} while (0)
 #endif
 
 #ifdef DEBUG_CHECKS
-	#define ReportFatalError(...) \
-		do \
-		{ \
-			LogAssertHelper("false", __FILE__, __LINE__, __VA_ARGS__); \
-			gGlobalFatalAssertHandler(); \
-		} while(0)
+#define ReportFatalError(...) \
+	do \
+	{ \
+		LogAssertHelper("false", __FILE__, __LINE__, __VA_ARGS__); \
+		gGlobalFatalAssertHandler(); \
+	} while (0)
 #else
-	#define ReportFatalError(...) do { } while(0)
+#define ReportFatalError(...) \
+	do { \
+	} while (0)
 #endif
 
 #ifdef DEBUG_CHECKS
-	#define Assert(cond, ...) \
+#define Assert(cond, ...) \
 	do \
 	{ \
 		if (static_cast<bool>(cond) == false) [[unlikely]] \
@@ -52,22 +56,26 @@ void LogAssertHelper(const char* condition, const char* file, size_t line, const
 			LogAssertHelper(STR(cond), __FILE__, __LINE__, __VA_ARGS__); \
 			gGlobalAssertHandler(); \
 		} \
-	} while(0)
+	} while (0)
 #else
-	#define Assert(...) do { } while(0)
+#define Assert(...) \
+	do { \
+	} while (0)
 #endif
 
 #ifdef DEBUG_CHECKS
-	#define AssertFatal(cond, ...) \
+#define AssertFatal(cond, ...) \
 	do { \
 		if (static_cast<bool>(cond) == false) [[unlikely]] \
 		{ \
 			LogAssertHelper(STR(cond), __FILE__, __LINE__, __VA_ARGS__); \
 			gGlobalFatalAssertHandler(); \
 		} \
-	} while(0)
+	} while (0)
 #else
-	#define AssertFatal(...) do { } while(0)
+#define AssertFatal(...) \
+	do { \
+	} while (0)
 #endif
 
 #define ReportErrorRelease(...) \
@@ -75,13 +83,13 @@ void LogAssertHelper(const char* condition, const char* file, size_t line, const
 	{ \
 		LogAssertHelper("false", __FILE__, __LINE__, __VA_ARGS__); \
 		gGlobalAssertHandler(); \
-	} while(0)
+	} while (0)
 
 #define AssertRelease(cond, ...) \
 	do { \
-	if (static_cast<bool>(cond) == false) [[unlikely]] \
-	{ \
-		LogAssertHelper(STR(cond), __FILE__, __LINE__, __VA_ARGS__); \
-		gGlobalAssertHandler(); \
-	} \
-} while(0)
+		if (static_cast<bool>(cond) == false) [[unlikely]] \
+		{ \
+			LogAssertHelper(STR(cond), __FILE__, __LINE__, __VA_ARGS__); \
+			gGlobalAssertHandler(); \
+		} \
+	} while (0)

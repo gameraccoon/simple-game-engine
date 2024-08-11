@@ -3,9 +3,9 @@
 #include "EngineCommon/Types/String/StringId.h"
 
 #include <algorithm>
-#include <inttypes.h>
 
 #include <fnv1a/hash_fnv1a.h>
+#include <inttypes.h>
 #include <nlohmann/json.hpp>
 
 StringIdManager gStringIdManagerInstance;

@@ -9,7 +9,7 @@ public:
 	template<typename U>
 	static Result Ok(U&& value) { return Result(std::forward<U>(value)); }
 	template<typename U>
-	static Result Err(U&& error) { return Result(Error{std::forward<U>(error)}); }
+	static Result Err(U&& error) { return Result(Error{ std::forward<U>(error) }); }
 
 	Result(const Result&) = default;
 	Result(Result&&) = default;
@@ -36,7 +36,8 @@ public:
 		return std::get<T>(mData);
 	}
 
-	T consumeValue() {
+	T consumeValue()
+	{
 		AssertFatal(hasValue(), "Trying to get value from Result that has an error set");
 		return std::move(std::get<T>(std::move(mData)));
 	}
@@ -70,9 +71,11 @@ private:
 
 private:
 	template<typename U>
-	explicit Result(U&& value) : mData(std::forward<U>(value)) {}
+	explicit Result(U&& value)
+		: mData(std::forward<U>(value)) {}
 	template<typename U>
-	explicit Result(Error&& error) : mData(std::move(error)) {}
+	explicit Result(Error&& error)
+		: mData(std::move(error)) {}
 
 	std::variant<T, Error> mData;
 };

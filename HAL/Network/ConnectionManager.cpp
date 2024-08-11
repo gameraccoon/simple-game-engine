@@ -4,15 +4,15 @@
 
 #ifndef FAKE_NETWORK
 
-#include <steam/steamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
-
 #include <array>
 #include <chrono>
 #include <functional>
 #include <mutex>
 #include <span>
 #include <unordered_map>
+
+#include <steam/isteamnetworkingutils.h>
+#include <steam/steamnetworkingsockets.h>
 
 namespace HAL
 {
@@ -72,7 +72,7 @@ namespace HAL
 			SteamNetworkingSockets()->SendMessageToConnection(connection, message.data.data(), static_cast<uint32>(dataSize), sendFlags, nullptr);
 			return { ConnectionManager::SendMessageResult::Status::Success };
 		}
-	}
+	} // namespace ConnectionManagerInternal
 
 	class ServerPort
 	{
@@ -232,76 +232,69 @@ namespace HAL
 		{
 			switch (callbackInfo->m_info.m_eState)
 			{
-				case k_ESteamNetworkingConnectionState_ClosedByPeer:
-				case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+			case k_ESteamNetworkingConnectionState_ClosedByPeer:
+			case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
+				if (callbackInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connected)
 				{
-					if (callbackInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connected)
+					auto itClient = mClients.find(callbackInfo->m_hConn);
+					AssertFatal(itClient != mClients.end(), "The client should already exist if we were connected to it");
+
+					const char* debugLogActionStr;
+					if (callbackInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
 					{
-						auto itClient = mClients.find(callbackInfo->m_hConn);
-						AssertFatal(itClient != mClients.end(), "The client should already exist if we were connected to it");
-
-						const char *debugLogActionStr;
-						if (callbackInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
-						{
-							debugLogActionStr = "problem detected locally";
-						}
-						else
-						{
-							debugLogActionStr = "closed by peer";
-						}
-
-						LogInfo("Connection %s %s, reason %d: %s\n",
-							callbackInfo->m_info.m_szConnectionDescription,
-							debugLogActionStr,
-							callbackInfo->m_info.m_eEndReason,
-							callbackInfo->m_info.m_szEndDebug
-						);
-
-						mOnClientDisconnected(itClient->second);
-						mClientsByConnectionId.erase(itClient->second);
-						mClients.erase(itClient);
+						debugLogActionStr = "problem detected locally";
 					}
 					else
 					{
-						AssertFatal(callbackInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting, "Inconsistent states (%u, %u)", callbackInfo->m_eOldState, callbackInfo->m_eOldState);
+						debugLogActionStr = "closed by peer";
 					}
 
-					mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
-					break;
-				}
+					LogInfo("Connection %s %s, reason %d: %s\n", callbackInfo->m_info.m_szConnectionDescription, debugLogActionStr, callbackInfo->m_info.m_eEndReason, callbackInfo->m_info.m_szEndDebug);
 
-				case k_ESteamNetworkingConnectionState_Connecting:
+					mOnClientDisconnected(itClient->second);
+					mClientsByConnectionId.erase(itClient->second);
+					mClients.erase(itClient);
+				}
+				else
 				{
-					AssertFatal(!mClients.contains(callbackInfo->m_hConn), "We already have a connection with this ID");
+					AssertFatal(callbackInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting, "Inconsistent states (%u, %u)", callbackInfo->m_eOldState, callbackInfo->m_eOldState);
+				}
 
-					LogInfo("Connection request from %s", callbackInfo->m_info.m_szConnectionDescription);
+				mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
+				break;
+			}
 
-					if (mSteamNetworkingSockets->AcceptConnection(callbackInfo->m_hConn) != k_EResultOK)
-					{
-						// this could fail. If the remote host tried to connect, but then
-						// disconnected, the connection may already be half closed. Just
-						// destroy whatever we have on our side.
-						mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
-						LogInfo("Can't accept connection. (It was already closed?)");
-						break;
-					}
+			case k_ESteamNetworkingConnectionState_Connecting: {
+				AssertFatal(!mClients.contains(callbackInfo->m_hConn), "We already have a connection with this ID");
 
-					if (!mSteamNetworkingSockets->SetConnectionPollGroup(callbackInfo->m_hConn, mPollGroup))
-					{
-						mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
-						LogInfo("Failed to set poll group?");
-						break;
-					}
+				LogInfo("Connection request from %s", callbackInfo->m_info.m_szConnectionDescription);
 
-					const ConnectionId connectionId = mGetNewConnectionIdFn(this);
-					mClients.emplace(callbackInfo->m_hConn, connectionId);
-					mClientsByConnectionId.emplace(connectionId, callbackInfo->m_hConn);
+				if (mSteamNetworkingSockets->AcceptConnection(callbackInfo->m_hConn) != k_EResultOK)
+				{
+					// this could fail. If the remote host tried to connect, but then
+					// disconnected, the connection may already be half closed. Just
+					// destroy whatever we have on our side.
+					mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
+					LogInfo("Can't accept connection. (It was already closed?)");
 					break;
 				}
 
-				default:
-					// ignore some of unimportant for us callbacks
+				if (!mSteamNetworkingSockets->SetConnectionPollGroup(callbackInfo->m_hConn, mPollGroup))
+				{
+					mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
+					LogInfo("Failed to set poll group?");
 					break;
+				}
+
+				const ConnectionId connectionId = mGetNewConnectionIdFn(this);
+				mClients.emplace(callbackInfo->m_hConn, connectionId);
+				mClientsByConnectionId.emplace(connectionId, callbackInfo->m_hConn);
+				break;
+			}
+
+			default:
+				// ignore some of unimportant for us callbacks
+				break;
 			}
 		}
 
@@ -411,44 +404,43 @@ namespace HAL
 		}
 
 	private:
-		void onSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t *pInfo)
+		void onSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* pInfo)
 		{
 			AssertFatal(pInfo->m_hConn == mConnection || mConnection == k_HSteamNetConnection_Invalid, "We got status update for an invalid connection");
 
 			switch (pInfo->m_info.m_eState)
 			{
-				case k_ESteamNetworkingConnectionState_ClosedByPeer:
-				case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+			case k_ESteamNetworkingConnectionState_ClosedByPeer:
+			case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
+				if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting)
 				{
-					if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting)
-					{
-						// Note: we could distinguish between a timeout, a rejected connection,
-						// or some other transport problem.
-						LogInfo("Could not connect to the remove host. (%s)", pInfo->m_info.m_szEndDebug);
-					}
-					else if (pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
-					{
-						LogInfo("Lost connection with the host. (%s)", pInfo->m_info.m_szEndDebug);
-					}
-					else
-					{
-						// NOTE: We could check the reason code for a normal disconnection
-						LogInfo("The host dropped the connection. (%s)", pInfo->m_info.m_szEndDebug);
-					}
-
-					mSteamNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
-					mConnection = k_HSteamNetConnection_Invalid;
-					mOnDisconnected(mConnectionId);
-					break;
+					// Note: we could distinguish between a timeout, a rejected connection,
+					// or some other transport problem.
+					LogInfo("Could not connect to the remove host. (%s)", pInfo->m_info.m_szEndDebug);
+				}
+				else if (pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
+				{
+					LogInfo("Lost connection with the host. (%s)", pInfo->m_info.m_szEndDebug);
+				}
+				else
+				{
+					// NOTE: We could check the reason code for a normal disconnection
+					LogInfo("The host dropped the connection. (%s)", pInfo->m_info.m_szEndDebug);
 				}
 
-				case k_ESteamNetworkingConnectionState_Connected:
-					LogInfo("Connected to server OK");
-					break;
+				mSteamNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
+				mConnection = k_HSteamNetConnection_Invalid;
+				mOnDisconnected(mConnectionId);
+				break;
+			}
 
-				default:
-					// ignore some of unimportant for us callbacks
-					break;
+			case k_ESteamNetworkingConnectionState_Connected:
+				LogInfo("Connected to server OK");
+				break;
+
+			default:
+				// ignore some of unimportant for us callbacks
+				break;
 			}
 		}
 
@@ -500,8 +492,7 @@ namespace HAL
 		{
 			ConnectionId newConnectionId = nextConnectionId++;
 
-			auto onDisconnected = [this](ConnectionId connectionId)
-			{
+			auto onDisconnected = [this](ConnectionId connectionId) {
 				clientServerConnections.erase(connectionId);
 			};
 
@@ -511,12 +502,12 @@ namespace HAL
 
 			if (!isSuccessfulTry)
 			{
-				return {ConnectionManager::ConnectResult::Status::Failure, InvalidConnectionId};
+				return { ConnectionManager::ConnectResult::Status::Failure, InvalidConnectionId };
 			}
 
 			clientServerConnections[newConnectionId] = std::move(newConnection);
 
-			return {ConnectionManager::ConnectResult::Status::Success, newConnectionId};
+			return { ConnectionManager::ConnectResult::Status::Success, newConnectionId };
 		}
 
 		void closeAllConnections()
@@ -547,18 +538,16 @@ namespace HAL
 		if (StaticImpl().openPorts.contains(port))
 		{
 			ReportError("Trying to open a port that we already have opened");
-			return {ConnectionManager::OpenPortResult::Status::AlreadyOpened};
+			return { ConnectionManager::OpenPortResult::Status::AlreadyOpened };
 		}
 
-		auto getNewServerClientConnectionId = [](ServerPort* port) -> ConnectionId
-		{
+		auto getNewServerClientConnectionId = [](ServerPort* port) -> ConnectionId {
 			ConnectionId newConnectionId = StaticImpl().nextConnectionId++;
 			StaticImpl().serverClientConnections.emplace(newConnectionId, port);
 			return newConnectionId;
 		};
 
-		auto onClientDisconnected = [](ConnectionId connectionId)
-		{
+		auto onClientDisconnected = [](ConnectionId connectionId) {
 			StaticImpl().serverClientConnections.erase(connectionId);
 		};
 
@@ -572,13 +561,13 @@ namespace HAL
 
 		if (!hasOpened)
 		{
-			return {ConnectionManager::OpenPortResult::Status::UnknownFailure};
+			return { ConnectionManager::OpenPortResult::Status::UnknownFailure };
 		}
 
 		StaticImpl().openPorts.emplace(port, std::move(newPort));
 		mOpenedPorts.insert(port);
 
-		return {ConnectionManager::OpenPortResult::Status::Success};
+		return { ConnectionManager::OpenPortResult::Status::Success };
 	}
 
 	bool ConnectionManager::isPortOpen(u16 port) const
@@ -802,13 +791,13 @@ namespace HAL
 		static Impl instance;
 		return instance;
 	}
-}
+} // namespace HAL
 
 #else // FAKE_NETWORK
 
-#include "HAL/Network/Debug/FakeNetwork.h"
-
 #include <chrono>
+
+#include "HAL/Network/Debug/FakeNetwork.h"
 
 namespace HAL
 {
@@ -826,12 +815,12 @@ namespace HAL
 
 		switch (result.status)
 		{
-			case FakeNetworkManager::OpenPortResult::Status::Success:
-				return { ConnectionManager::OpenPortResult::Status::Success };
-			case FakeNetworkManager::OpenPortResult::Status::AlreadyOpened:
-				return { ConnectionManager::OpenPortResult::Status::AlreadyOpened };
-			default:
-				return { ConnectionManager::OpenPortResult::Status::UnknownFailure };
+		case FakeNetworkManager::OpenPortResult::Status::Success:
+			return { ConnectionManager::OpenPortResult::Status::Success };
+		case FakeNetworkManager::OpenPortResult::Status::AlreadyOpened:
+			return { ConnectionManager::OpenPortResult::Status::AlreadyOpened };
+		default:
+			return { ConnectionManager::OpenPortResult::Status::UnknownFailure };
 		}
 	}
 
@@ -847,19 +836,18 @@ namespace HAL
 
 	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToClient(ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle /*useNagle*/)
 	{
-		const FakeNetworkManager::MessageReliability fakeReliability = [reliability]()
-		{
+		const FakeNetworkManager::MessageReliability fakeReliability = [reliability]() {
 			switch (reliability)
 			{
-				case ConnectionManager::MessageReliability::Reliable:
-					return FakeNetworkManager::MessageReliability::Reliable;
-				case ConnectionManager::MessageReliability::Unreliable:
-					return FakeNetworkManager::MessageReliability::Unreliable;
-				case ConnectionManager::MessageReliability::UnreliableAllowSkip:
-					return FakeNetworkManager::MessageReliability::UnreliableAllowSkip;
-				default:
-					ReportFatalError("Unsupported message reliability %u:", static_cast<unsigned int>(reliability));
-					return FakeNetworkManager::MessageReliability::Reliable;
+			case ConnectionManager::MessageReliability::Reliable:
+				return FakeNetworkManager::MessageReliability::Reliable;
+			case ConnectionManager::MessageReliability::Unreliable:
+				return FakeNetworkManager::MessageReliability::Unreliable;
+			case ConnectionManager::MessageReliability::UnreliableAllowSkip:
+				return FakeNetworkManager::MessageReliability::UnreliableAllowSkip;
+			default:
+				ReportFatalError("Unsupported message reliability %u:", static_cast<unsigned int>(reliability));
+				return FakeNetworkManager::MessageReliability::Reliable;
 			}
 		}();
 
@@ -867,12 +855,12 @@ namespace HAL
 
 		switch (result.status)
 		{
-			case FakeNetworkManager::SendMessageResult::Status::Success:
-				return { ConnectionManager::SendMessageResult::Status::Success };
-			case FakeNetworkManager::SendMessageResult::Status::ConnectionClosed:
-				return { ConnectionManager::SendMessageResult::Status::ConnectionClosed };
-			default:
-				return { ConnectionManager::SendMessageResult::Status::UnknownFailure };
+		case FakeNetworkManager::SendMessageResult::Status::Success:
+			return { ConnectionManager::SendMessageResult::Status::Success };
+		case FakeNetworkManager::SendMessageResult::Status::ConnectionClosed:
+			return { ConnectionManager::SendMessageResult::Status::ConnectionClosed };
+		default:
+			return { ConnectionManager::SendMessageResult::Status::UnknownFailure };
 		}
 	}
 
@@ -907,10 +895,10 @@ namespace HAL
 
 		switch (result.status)
 		{
-			case FakeNetworkManager::ConnectResult::Status::Success:
-				return { ConnectionManager::ConnectResult::Status::Success, result.connectionId };
-			case FakeNetworkManager::ConnectResult::Status::Failure:
-				return { ConnectionManager::ConnectResult::Status::Failure, InvalidConnectionId };
+		case FakeNetworkManager::ConnectResult::Status::Success:
+			return { ConnectionManager::ConnectResult::Status::Success, result.connectionId };
+		case FakeNetworkManager::ConnectResult::Status::Failure:
+			return { ConnectionManager::ConnectResult::Status::Failure, InvalidConnectionId };
 		}
 
 		ReportFatalError("Unknown connection status");
@@ -924,19 +912,18 @@ namespace HAL
 
 	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToServer(ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle /*useNagle*/)
 	{
-		const auto actualReliability = [reliability]()
-		{
+		const auto actualReliability = [reliability]() {
 			switch (reliability)
 			{
-				case ConnectionManager::MessageReliability::Reliable:
-					return FakeNetworkManager::MessageReliability::Reliable;
-				case ConnectionManager::MessageReliability::Unreliable:
-					return FakeNetworkManager::MessageReliability::Unreliable;
-				case ConnectionManager::MessageReliability::UnreliableAllowSkip:
-					return FakeNetworkManager::MessageReliability::UnreliableAllowSkip;
-				default:
-					ReportFatalError("Unsupported message reliability %u:", static_cast<unsigned int>(reliability));
-					return FakeNetworkManager::MessageReliability::Reliable;
+			case ConnectionManager::MessageReliability::Reliable:
+				return FakeNetworkManager::MessageReliability::Reliable;
+			case ConnectionManager::MessageReliability::Unreliable:
+				return FakeNetworkManager::MessageReliability::Unreliable;
+			case ConnectionManager::MessageReliability::UnreliableAllowSkip:
+				return FakeNetworkManager::MessageReliability::UnreliableAllowSkip;
+			default:
+				ReportFatalError("Unsupported message reliability %u:", static_cast<unsigned int>(reliability));
+				return FakeNetworkManager::MessageReliability::Reliable;
 			}
 		}();
 
@@ -944,12 +931,12 @@ namespace HAL
 
 		switch (result.status)
 		{
-			case FakeNetworkManager::SendMessageResult::Status::Success:
-				return { ConnectionManager::SendMessageResult::Status::Success };
-			case FakeNetworkManager::SendMessageResult::Status::ConnectionClosed:
-				return { ConnectionManager::SendMessageResult::Status::ConnectionClosed };
-			default:
-				return { ConnectionManager::SendMessageResult::Status::UnknownFailure };
+		case FakeNetworkManager::SendMessageResult::Status::Success:
+			return { ConnectionManager::SendMessageResult::Status::Success };
+		case FakeNetworkManager::SendMessageResult::Status::ConnectionClosed:
+			return { ConnectionManager::SendMessageResult::Status::ConnectionClosed };
+		default:
+			return { ConnectionManager::SendMessageResult::Status::UnknownFailure };
 		}
 	}
 
@@ -1010,7 +997,6 @@ namespace HAL
 		static Impl instance;
 		return instance;
 	}
-}
-
+} // namespace HAL
 
 #endif // FAKE_NETWORK

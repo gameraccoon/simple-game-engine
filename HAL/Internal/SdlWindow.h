@@ -25,7 +25,7 @@ namespace HAL
 		private:
 			SDL_Window* mSDLWindow;
 		};
-	}
-}
+	} // namespace Internal
+} // namespace HAL
 
 #endif // !DISABLE_SDL

@@ -34,6 +34,6 @@ namespace Graphics
 	private:
 		FC_Font* mFont = nullptr;
 	};
-}
+} // namespace Graphics
 
 #endif // !DISABLE_SDL

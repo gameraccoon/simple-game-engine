@@ -43,4 +43,4 @@ namespace Graphics
 		Vector2D spacePoint;
 		Vector2D texturePoint;
 	};
-}
+} // namespace Graphics

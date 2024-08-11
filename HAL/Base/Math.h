@@ -1,8 +1,8 @@
 #pragma once
 
-#include "HAL/Base/Types.h"
-
 #include "EngineData/Geometry/Vector2D.h"
+
+#include "HAL/Base/Types.h"
 
 namespace Graphics
 {

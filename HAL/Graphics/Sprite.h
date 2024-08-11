@@ -33,6 +33,6 @@ namespace Graphics
 		const Surface* mSurface = nullptr;
 		QuadUV mUV;
 	};
-}
+} // namespace Graphics
 
 #endif // !DISABLE_SDL

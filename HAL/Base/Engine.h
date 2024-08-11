@@ -45,4 +45,4 @@ namespace HAL
 		std::unique_ptr<Impl> mPimpl;
 	};
 #endif // !DISABLE_SDL
-}
+} // namespace HAL

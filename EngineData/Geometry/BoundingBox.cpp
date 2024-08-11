@@ -12,10 +12,10 @@ BoundingBox BoundingBox::operator+(const Vector2D shift) const noexcept
 void to_json(nlohmann::json& outJson, const BoundingBox& bb)
 {
 	outJson = nlohmann::json{
-		{"maxX", bb.maxX},
-		{"maxY", bb.maxY},
-		{"minX", bb.minX},
-		{"minY", bb.minY}
+		{ "maxX", bb.maxX },
+		{ "maxY", bb.maxY },
+		{ "minX", bb.minX },
+		{ "minY", bb.minY }
 	};
 }
 

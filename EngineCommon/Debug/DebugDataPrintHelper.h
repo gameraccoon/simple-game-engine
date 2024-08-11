@@ -1,8 +1,8 @@
 #pragma once
 
+#include <ostream>
 #include <unordered_map>
 #include <vector>
-#include <ostream>
 
 namespace DebugDataPrintHelper
 {
@@ -10,17 +10,17 @@ namespace DebugDataPrintHelper
 	template<typename MapType>
 	void PrintUnorderedMapBucketUtilization(const MapType& map, std::ostream& outStream)
 	{
-		for (size_t i = 0; i < map.bucket_count()-1; ++i)
+		for (size_t i = 0; i < map.bucket_count() - 1; ++i)
 		{
 			outStream << i << ",";
 		}
-		outStream << map.bucket_count()-1 << "\n";
+		outStream << map.bucket_count() - 1 << "\n";
 
-		for (size_t i = 0; i < map.bucket_count()-1; ++i)
+		for (size_t i = 0; i < map.bucket_count() - 1; ++i)
 		{
 			outStream << map.bucket_size(i) << ",";
 		}
-		outStream << map.bucket_size(map.bucket_count()-1) << "\n";
+		outStream << map.bucket_size(map.bucket_count() - 1) << "\n";
 	}
 
 	// called after PrintUnorderedMapBucketUtilization to print values that lay in each bucket
@@ -39,7 +39,7 @@ namespace DebugDataPrintHelper
 
 		for (size_t row = 0; row < maxSize; ++row)
 		{
-			for (size_t i = 0; i < map.bucket_count()-1; ++i)
+			for (size_t i = 0; i < map.bucket_count() - 1; ++i)
 			{
 				auto it = bucketValueMapping.find(i);
 				if (it != bucketValueMapping.end() && row < it->second.size())
@@ -48,7 +48,7 @@ namespace DebugDataPrintHelper
 				}
 				outStream << ",";
 			}
-			auto it = bucketValueMapping.find(map.bucket_count()-1);
+			auto it = bucketValueMapping.find(map.bucket_count() - 1);
 			if (it != bucketValueMapping.end() && row < it->second.size())
 			{
 				outStream << printFn(it->second[row]);
@@ -56,4 +56,4 @@ namespace DebugDataPrintHelper
 			outStream << "\n";
 		}
 	}
-}
+} // namespace DebugDataPrintHelper

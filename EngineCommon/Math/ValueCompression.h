@@ -39,7 +39,7 @@ namespace Utils
 	template<typename I, typename F>
 	I CompressFloatToIntCL(F value, F min, F max, unsigned int bitsCount)
 	{
-		return CompressNormalizedFloatToIntCL<I, F>((value - min)/(max - min), bitsCount);
+		return CompressNormalizedFloatToIntCL<I, F>((value - min) / (max - min), bitsCount);
 	}
 
 	template<typename F, typename I>
@@ -47,4 +47,4 @@ namespace Utils
 	{
 		return min + DecompressNormalizedFloatFromIntCL<F, I>(compressed, bitsCount) * (max - min);
 	}
-}
+} // namespace Utils

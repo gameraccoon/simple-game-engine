@@ -98,7 +98,8 @@ namespace Graphics
 	{
 		const std::unique_ptr<Surface>* surfacePtr = resource.cast<std::unique_ptr<Surface>>();
 
-		if (!surfacePtr) {
+		if (!surfacePtr)
+		{
 			ReportFatalError("We got an incorrect type of value when deinitializing a surface");
 			return {};
 		}
@@ -172,6 +173,6 @@ namespace Graphics
 			},
 		};
 	}
-}
+} // namespace Graphics
 
 #endif // !DISABLE_SDL

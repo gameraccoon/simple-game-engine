@@ -1,14 +1,14 @@
 #include "EngineCommon/precomp.h"
 
 #include <chrono>
-#include <iomanip>
 #include <filesystem>
+#include <iomanip>
 #include <iostream>
 #include <thread>
 
 Log::Log()
 {
-	const std::filesystem::path LOGS_DIR{"./logs"};
+	const std::filesystem::path LOGS_DIR{ "./logs" };
 	const std::filesystem::path LOG_FILE = LOGS_DIR / "log.txt";
 
 	namespace fs = std::filesystem;
@@ -62,7 +62,8 @@ void Log::writeLine(const char* logPrefix, const std::string& text)
 
 		mLogWriteMutex.lock();
 		mLogFileStream << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X [") << std::this_thread::get_id() << "] ";
-		mLogFileStream << logPrefix << text << "\n" << std::flush;
+		mLogFileStream << logPrefix << text << "\n"
+					   << std::flush;
 		mLogWriteMutex.unlock();
 	}
 

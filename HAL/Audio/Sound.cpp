@@ -2,9 +2,9 @@
 
 #ifndef DISABLE_SDL
 
-#include "HAL/Audio/Sound.h"
-
 #include <SDL_mixer.h>
+
+#include "HAL/Audio/Sound.h"
 
 namespace Audio
 {
@@ -12,7 +12,7 @@ namespace Audio
 		: mSound(Mix_LoadWAV(path.getAbsolutePathStr().c_str()))
 	{
 	}
-	
+
 	Sound::~Sound()
 	{
 		Mix_FreeChunk(mSound);
@@ -27,6 +27,6 @@ namespace Audio
 	{
 		return mSound != nullptr;
 	}
-}
+} // namespace Audio
 
 #endif // !DISABLE_SDL

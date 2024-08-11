@@ -27,4 +27,4 @@ namespace TemplateHelpers
 	{
 		return std::get<T>(container.TEMPLATE_MSVC_FIX emplace_back(std::in_place_type<T>, std::forward<Args>(args)...));
 	}
-}
+} // namespace TemplateHelpers

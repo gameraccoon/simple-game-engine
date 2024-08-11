@@ -4,10 +4,8 @@
 #include <cmath>
 #include <cstring>
 
-#include <nlohmann/json_fwd.hpp>
-
 #include "Rotator.h"
-
+#include <nlohmann/json_fwd.hpp>
 
 struct Vector2D
 {
@@ -17,7 +15,8 @@ struct Vector2D
 	// leaves inner data uninitialized
 	Vector2D() = default;
 	// can be created from initializer list
-	constexpr Vector2D(const float x, const float y) : x(x), y(y) {}
+	constexpr Vector2D(const float x, const float y)
+		: x(x), y(y) {}
 	explicit Vector2D(Rotator rotator) noexcept;
 
 	/** Get vector length in units */
@@ -94,8 +93,10 @@ struct Vector2DKey
 {
 	static constexpr float Multiplier = static_cast<float>(1 << PrecisionBin);
 
-	struct Key {
-		Key(const long x, const long y): x(x), y(y) {}
+	struct Key
+	{
+		Key(const long x, const long y)
+			: x(x), y(y) {}
 
 		long x;
 		long y;
@@ -119,18 +120,19 @@ struct Vector2DKey
 		return std::memcmp(&key, &other.key, sizeof(Key)) < 0;
 	}
 
-	[[nodiscard]] Vector2D calcRoundedValue() const {
-		return Vector2D{static_cast<float>(key.x) / Multiplier, static_cast<float>(key.y) / Multiplier};
+	[[nodiscard]] Vector2D calcRoundedValue() const
+	{
+		return Vector2D{ static_cast<float>(key.x) / Multiplier, static_cast<float>(key.y) / Multiplier };
 	}
 };
 
-template <>
+template<>
 struct std::hash<Vector2D>
 {
 	std::size_t operator()(Vector2D k) const noexcept;
 };
 
-template <int Precision>
+template<int Precision>
 struct std::hash<Vector2DKey<Precision>>
 {
 	std::size_t operator()(const Vector2DKey<Precision>& k) const

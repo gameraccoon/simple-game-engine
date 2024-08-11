@@ -11,8 +11,10 @@ class TextString : public std::string
 {
 public:
 	using std::string::string;
-	explicit TextString(std::string&& val) : std::string(val) {}
-	explicit TextString(const std::string& val) : std::string(val) {}
+	explicit TextString(std::string&& val)
+		: std::string(val) {}
+	explicit TextString(const std::string& val)
+		: std::string(val) {}
 };
 
 template<>

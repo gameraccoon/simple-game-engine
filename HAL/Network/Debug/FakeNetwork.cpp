@@ -2,11 +2,11 @@
 
 #ifdef FAKE_NETWORK
 
-#include "HAL/Network/Debug/FakeNetwork.h"
-
 #include <chrono>
 #include <mutex>
 #include <unordered_set>
+
+#include "HAL/Network/Debug/FakeNetwork.h"
 
 namespace HAL
 {
@@ -43,8 +43,7 @@ namespace HAL
 				std::remove_if(
 					messages.begin(),
 					messages.end(),
-					[connection](const std::pair<ConnectionId, Network::Message>& messagePair)
-					{
+					[connection](const std::pair<ConnectionId, Network::Message>& messagePair) {
 						return messagePair.first == connection;
 					}
 				),
@@ -72,8 +71,7 @@ namespace HAL
 		{
 			std::vector<DelayedMessage>& delayedMessages = messagesOnTheWay[connectionId];
 			std::chrono::system_clock::time_point deliveryTime = getTime() + messageDelay;
-			auto it = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), deliveryTime, [](std::chrono::system_clock::time_point deliveryTime, const DelayedMessage& message)
-			{
+			auto it = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), deliveryTime, [](std::chrono::system_clock::time_point deliveryTime, const DelayedMessage& message) {
 				return deliveryTime < message.deliveryTime;
 			});
 
@@ -107,8 +105,7 @@ namespace HAL
 
 			std::vector<DelayedMessage>& delayedMessages = messagesOnTheWay[sendingSideConnectionId];
 			const std::chrono::system_clock::time_point timeNow = getTime();
-			auto receivedMessagesEnd = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), timeNow, [](std::chrono::system_clock::time_point timeNow, const DelayedMessage& message)
-			{
+			auto receivedMessagesEnd = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), timeNow, [](std::chrono::system_clock::time_point timeNow, const DelayedMessage& message) {
 				return timeNow < message.deliveryTime;
 			});
 
@@ -142,12 +139,12 @@ namespace HAL
 		std::lock_guard l(mPimpl->dataMutex);
 		if (mPimpl->openPorts.find(port) != mPimpl->openPorts.end())
 		{
-			return FakeNetworkManager::OpenPortResult{FakeNetworkManager::OpenPortResult::Status::AlreadyOpened};
+			return FakeNetworkManager::OpenPortResult{ FakeNetworkManager::OpenPortResult::Status::AlreadyOpened };
 		}
 
 		mPimpl->openPorts.emplace(port, std::make_unique<Impl::OpenPortData>());
 
-		return FakeNetworkManager::OpenPortResult{FakeNetworkManager::OpenPortResult::Status::Success};
+		return FakeNetworkManager::OpenPortResult{ FakeNetworkManager::OpenPortResult::Status::Success };
 	}
 
 	bool FakeNetworkManager::isPortOpen(u16 port) const
@@ -185,7 +182,7 @@ namespace HAL
 		if (!address.isLocalhost())
 		{
 			ReportFatalError("Real network connections are not supported in FAKE_NETWORK mode, use 127.0.0.1 to simulate local connection");
-			return FakeNetworkManager::ConnectResult{FakeNetworkManager::ConnectResult::Status::Failure, InvalidConnectionId};
+			return FakeNetworkManager::ConnectResult{ FakeNetworkManager::ConnectResult::Status::Failure, InvalidConnectionId };
 		}
 
 		const u16 port = address.getPort();
@@ -194,10 +191,10 @@ namespace HAL
 
 		if (clientConnectionId != InvalidConnectionId)
 		{
-			return FakeNetworkManager::ConnectResult{FakeNetworkManager::ConnectResult::Status::Success, clientConnectionId};
+			return FakeNetworkManager::ConnectResult{ FakeNetworkManager::ConnectResult::Status::Success, clientConnectionId };
 		}
 
-		return FakeNetworkManager::ConnectResult{FakeNetworkManager::ConnectResult::Status::Failure, InvalidConnectionId};
+		return FakeNetworkManager::ConnectResult{ FakeNetworkManager::ConnectResult::Status::Failure, InvalidConnectionId };
 	}
 
 	bool FakeNetworkManager::isConnectionOpen(ConnectionId connection) const
@@ -263,12 +260,12 @@ namespace HAL
 			if (std::rand() % 100 < messageLossPercentage)
 			{
 				// imitate sending and loosing
-				return FakeNetworkManager::SendMessageResult{FakeNetworkManager::SendMessageResult::Status::Success};
+				return FakeNetworkManager::SendMessageResult{ FakeNetworkManager::SendMessageResult::Status::Success };
 			}
 		}
 
 		mPimpl->scheduleMessage(connectionId, std::move(message));
-		return FakeNetworkManager::SendMessageResult{FakeNetworkManager::SendMessageResult::Status::Success};
+		return FakeNetworkManager::SendMessageResult{ FakeNetworkManager::SendMessageResult::Status::Success };
 	}
 
 	std::vector<std::pair<ConnectionId, Network::Message>> FakeNetworkManager::consumeReceivedMessages(u16 port)

@@ -22,4 +22,4 @@ namespace HAL
 		Engine* mEngine;
 		ResourceManager& mResourceManager;
 	};
-}
+} // namespace HAL

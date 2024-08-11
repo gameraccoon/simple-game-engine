@@ -3,6 +3,7 @@
 #ifndef DISABLE_SDL
 
 #include <cstring> // should be before SDL.h to suppress undifined memcpy error
+
 #include <SDL.h>
 
 namespace HAL
@@ -28,7 +29,7 @@ namespace HAL
 		private:
 			SDL_GLContext mContext;
 		};
-	}
-}
+	} // namespace Internal
+} // namespace HAL
 
 #endif // !DISABLE_SDL

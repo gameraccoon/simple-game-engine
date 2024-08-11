@@ -30,5 +30,5 @@ namespace Audio
 	private:
 		Mix_Chunk* mSound = nullptr;
 	};
-}
+} // namespace Audio
 #endif // DISABLE_SDL

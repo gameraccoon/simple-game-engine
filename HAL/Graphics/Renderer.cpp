@@ -2,13 +2,12 @@
 
 #ifndef DISABLE_SDL
 
-#include "HAL/Graphics/Renderer.h"
-
-#include <glm/gtc/matrix_transform.hpp>
 #include <glew/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "EngineCommon/Debug/ConcurrentAccessDetector.h"
 
+#include "HAL/Graphics/Renderer.h"
 #include "HAL/Graphics/SdlSurface.h"
 
 #ifdef CONCURRENT_ACCESS_DETECTION
@@ -32,10 +31,14 @@ namespace Graphics
 
 		glBegin(GL_QUADS);
 		glColor4f(1.0f, 1.0f, 1.0f, alpha);
-		glTexCoord2f(uv.u1, uv.v2); glVertex2f(0.0f, size.y);
-		glTexCoord2f(uv.u2, uv.v2); glVertex2f(size.x, size.y);
-		glTexCoord2f(uv.u2, uv.v1); glVertex2f(size.x, 0.0f);
-		glTexCoord2f(uv.u1, uv.v1); glVertex2f(0.0f, 0.0f);
+		glTexCoord2f(uv.u1, uv.v2);
+		glVertex2f(0.0f, size.y);
+		glTexCoord2f(uv.u2, uv.v2);
+		glVertex2f(size.x, size.y);
+		glTexCoord2f(uv.u2, uv.v1);
+		glVertex2f(size.x, 0.0f);
+		glTexCoord2f(uv.u1, uv.v1);
+		glVertex2f(0.0f, 0.0f);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glEnd();
 	}
@@ -49,10 +52,14 @@ namespace Graphics
 
 		glBegin(GL_QUADS);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, size.y);
-		glTexCoord2f(1.0f, 1.0f); glVertex2f(size.x, size.y);
-		glTexCoord2f(1.0f, 0.0f); glVertex2f(size.x, 0.0f);
-		glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(0.0f, size.y);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(size.x, size.y);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(size.x, 0.0f);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(0.0f, 0.0f);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glEnd();
 	}
@@ -106,10 +113,14 @@ namespace Graphics
 
 		glBegin(GL_QUADS);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		glTexCoord2f(uv.u1, uv.v2); glVertex2f(start.x, start.y + size.y);
-		glTexCoord2f(uv.u2, uv.v2); glVertex2f(start.x + size.x, start.y + size.y);
-		glTexCoord2f(uv.u2, uv.v1); glVertex2f(start.x + size.x, start.y);
-		glTexCoord2f(uv.u1, uv.v1); glVertex2f(start.x, start.y);
+		glTexCoord2f(uv.u1, uv.v2);
+		glVertex2f(start.x, start.y + size.y);
+		glTexCoord2f(uv.u2, uv.v2);
+		glVertex2f(start.x + size.x, start.y + size.y);
+		glTexCoord2f(uv.u2, uv.v1);
+		glVertex2f(start.x + size.x, start.y);
+		glTexCoord2f(uv.u1, uv.v1);
+		glVertex2f(start.x, start.y);
 		glEnd();
 	}
 
@@ -123,6 +134,6 @@ namespace Graphics
 		//return { FC_GetWidth(font.getRawFont(), text), FC_GetHeight(font.getRawFont(), text) };
 		return { 1, 1 };
 	}
-}
+} // namespace Graphics
 
 #endif // !DISABLE_SDL

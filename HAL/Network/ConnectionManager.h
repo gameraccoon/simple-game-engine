@@ -15,7 +15,6 @@ namespace HAL
 	class ConnectionManager
 	{
 	public:
-
 		enum UseNagle
 		{
 			// leave it as Yes, unless you have a very good reason to bypass the Nagle's algorithm
@@ -114,4 +113,4 @@ namespace HAL
 		std::set<u16> mOpenedPorts;
 		std::set<ConnectionId> mOpenedServerConnections;
 	};
-}
+} // namespace HAL

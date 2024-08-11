@@ -1,8 +1,8 @@
 #include "EngineCommon/precomp.h"
 
-#include <nlohmann/json.hpp>
-
 #include "EngineCommon/Types/String/ResourcePath.h"
+
+#include <nlohmann/json.hpp>
 
 void to_json(nlohmann::json& outJson, const RelativeResourcePath& path)
 {

@@ -33,6 +33,6 @@ namespace Graphics
 	{
 		return mFont;
 	}
-}
+} // namespace Graphics
 
 #endif // !DISABLE_SDL

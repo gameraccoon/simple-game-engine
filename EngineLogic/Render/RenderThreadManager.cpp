@@ -4,19 +4,20 @@
 
 #ifndef DISABLE_SDL
 
-#include <SDL.h>
 #include <algorithm>
 #include <bitset>
+
 #include <glew/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/matrix.hpp>
+#include <SDL.h>
 
 #include "EngineCommon/Types/ComplexTypes/VectorUtils.h"
 
+#include "HAL/Base/Engine.h"
 #include "HAL/Base/Math.h"
 #include "HAL/Graphics/Renderer.h"
 #include "HAL/Graphics/Sprite.h"
-#include "HAL/Base/Engine.h"
 
 #include "GameUtils/ResourceManagement/ResourceManager.h"
 
@@ -75,10 +76,10 @@ namespace RenderThreadManagerInternal
 
 			std::vector<Graphics::DrawPoint> points;
 			points.reserve(fanData.points.size());
-			const Vector2D backScale{1.0f/fanData.size.x, 1.0f/fanData.size.y};
+			const Vector2D backScale{ 1.0f / fanData.size.x, 1.0f / fanData.size.y };
 			for (Vector2D point : fanData.points)
 			{
-				points.emplace_back(point, Graphics::QuadLerp(spriteUV, 0.5f+point.x*backScale.x, 0.5f+point.y*backScale.y));
+				points.emplace_back(point, Graphics::QuadLerp(spriteUV, 0.5f + point.x * backScale.x, 0.5f + point.y * backScale.y));
 			}
 
 			const Vector2D drawShift = fanData.start + fanData.size;
@@ -229,8 +230,7 @@ namespace RenderThreadManagerInternal
 					instanceData.emplace_back();
 				}
 
-				const bool containsFinalization = std::ranges::any_of(operationsBulk->layers, [](const RenderData::Layer& layer)
-				{
+				const bool containsFinalization = std::ranges::any_of(operationsBulk->layers, [](const RenderData::Layer& layer) {
 					return std::holds_alternative<FinalizeFrameCommand>(layer);
 				});
 
@@ -270,7 +270,7 @@ namespace RenderThreadManagerInternal
 			{
 				for (RenderData::Layer& layer : renderData->layers)
 				{
-					std::visit(RenderVisitor{resourceManager, engine, lastSurface, renderData->gameInstanceIndex}, std::move(layer));
+					std::visit(RenderVisitor{ resourceManager, engine, lastSurface, renderData->gameInstanceIndex }, std::move(layer));
 				}
 			}
 		}
@@ -292,7 +292,7 @@ namespace RenderThreadManagerInternal
 			frames.erase(frames.begin(), frames.begin() + (frames.size() - 1));
 		}
 	}
-}
+} // namespace RenderThreadManagerInternal
 
 RenderThreadManager::~RenderThreadManager()
 {
@@ -302,8 +302,7 @@ RenderThreadManager::~RenderThreadManager()
 void RenderThreadManager::startThread(ResourceManager& resourceManager, HAL::Engine& engine, std::function<void()>&& threadInitializeFn)
 {
 	mRenderThread = std::make_unique<std::thread>(
-		[&renderAccessor = mRenderAccessor, &resourceManager, &engine, threadInitializeFn]
-		{
+		[&renderAccessor = mRenderAccessor, &resourceManager, &engine, threadInitializeFn] {
 			if (threadInitializeFn)
 			{
 				threadInitializeFn();
@@ -360,11 +359,11 @@ void RenderThreadManager::RenderThreadFunction(RenderAccessor& renderAccessor, R
 	using namespace RenderThreadManagerInternal;
 
 	DataToRender dataToRender;
-	while(true)
+	while (true)
 	{
 		{
 			std::unique_lock lock(renderAccessor.dataMutex);
-			renderAccessor.notifyRenderThread.wait(lock, [&renderAccessor]{
+			renderAccessor.notifyRenderThread.wait(lock, [&renderAccessor] {
 				return renderAccessor.shutdownRequested || !renderAccessor.dataToTransfer.empty();
 			});
 

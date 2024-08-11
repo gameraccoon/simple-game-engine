@@ -156,4 +156,4 @@ namespace UnsafeSerialization
 		cursorPos += sizeof(Num);
 		return number;
 	}
-}
+} // namespace UnsafeSerialization

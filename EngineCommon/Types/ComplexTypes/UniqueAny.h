@@ -19,12 +19,13 @@ public:
 	}
 
 	UniqueAny& operator=(UniqueAny&) = delete;
-	UniqueAny& operator=(UniqueAny&& other) noexcept {
+	UniqueAny& operator=(UniqueAny&& other) noexcept
+	{
 		mData = std::move(other.mData);
 		return *this;
 	}
 
-	template <typename T, typename... Args>
+	template<typename T, typename... Args>
 	static UniqueAny Create(Args&&... args)
 	{
 		UniqueAny newAny;
@@ -32,7 +33,7 @@ public:
 		return newAny;
 	}
 
-	template <typename T>
+	template<typename T>
 	T* cast() noexcept
 	{
 		if (mData && dynamic_cast<TypeStoredData<T>*>(mData.get()) != nullptr)
@@ -42,7 +43,7 @@ public:
 		return nullptr;
 	}
 
-	template <typename T>
+	template<typename T>
 	const T* cast() const noexcept
 	{
 		if (mData && dynamic_cast<TypeStoredData<T>*>(mData.get()) != nullptr)
@@ -59,11 +60,10 @@ private:
 		virtual const std::type_info& getType() const noexcept = 0;
 	};
 
-	template <typename T>
+	template<typename T>
 	struct TypeStoredData final : public AbstractStoredData
 	{
-
-		template <typename... Args>
+		template<typename... Args>
 		explicit TypeStoredData(Args&&... args)
 			: data(std::forward<Args>(args)...)
 		{}

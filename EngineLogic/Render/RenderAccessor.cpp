@@ -2,7 +2,6 @@
 
 #include "EngineLogic/Render/RenderAccessor.h"
 
-
 void RenderAccessor::submitData(std::unique_ptr<RenderData>&& newData, const int gameInstanceIndex)
 {
 	newData->gameInstanceIndex = gameInstanceIndex;

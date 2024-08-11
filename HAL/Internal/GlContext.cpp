@@ -2,11 +2,11 @@
 
 #ifndef DISABLE_SDL
 
-#include "GlContext.h"
-
-#include "SdlWindow.h"
 #include <stdexcept>
 #include <string>
+
+#include "GlContext.h"
+#include "SdlWindow.h"
 
 #include "EngineCommon/Debug/ConcurrentAccessDetector.h"
 
@@ -40,7 +40,7 @@ namespace HAL
 			DETECT_CONCURRENT_ACCESS(HAL::gSDLAccessDetector);
 			return mContext;
 		}
-	}
-}
+	} // namespace Internal
+} // namespace HAL
 
 #endif // !DISABLE_SDL

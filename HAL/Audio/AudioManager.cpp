@@ -2,14 +2,13 @@
 
 #ifndef DISABLE_SDL
 
-#include "HAL/Audio/AudioManager.h"
-
 #include <cmath>
 
 #include <SDL_mixer.h>
 
-#include "HAL/Audio/Sound.h"
+#include "HAL/Audio/AudioManager.h"
 #include "HAL/Audio/Music.h"
+#include "HAL/Audio/Sound.h"
 
 namespace Audio
 {
@@ -67,5 +66,5 @@ namespace Audio
 	{
 		return static_cast<float>(Mix_VolumeMusic(-1)) / 128.0f;
 	}
-}
+} // namespace Audio
 #endif // !DISABLE_SDL

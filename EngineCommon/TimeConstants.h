@@ -13,6 +13,6 @@ namespace TimeConstants
 	static constexpr u64 ONE_FIXED_UPDATE_TICKS = 16;
 	static constexpr float ONE_FIXED_UPDATE_SEC = ONE_FIXED_UPDATE_TICKS * ONE_TICK_SECONDS;
 
-	static constexpr std::chrono::duration ONE_FIXED_UPDATE_DURATION = std::chrono::milliseconds{16};
-	static constexpr std::chrono::duration MAX_FRAME_DURATION = std::chrono::milliseconds{1000};
+	static constexpr std::chrono::duration ONE_FIXED_UPDATE_DURATION = std::chrono::milliseconds{ 16 };
+	static constexpr std::chrono::duration MAX_FRAME_DURATION = std::chrono::milliseconds{ 1000 };
 }

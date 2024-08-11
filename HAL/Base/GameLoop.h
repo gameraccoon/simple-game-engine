@@ -19,10 +19,10 @@ namespace HAL
 		{
 			if constexpr (!std::is_same_v<ShouldStopFnT, std::nullptr_t>)
 			{
-				 if (shouldStopFn())
-				 {
-					 break;
-				 }
+				if (shouldStopFn())
+				{
+					break;
+				}
 			}
 
 			if constexpr (!std::is_same_v<OnIterationFnT, std::nullptr_t>)
@@ -81,4 +81,4 @@ namespace HAL
 			}
 		}
 	}
-}
+} // namespace HAL

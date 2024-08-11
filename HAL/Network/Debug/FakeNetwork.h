@@ -32,7 +32,8 @@ namespace HAL
 
 		struct ConnectResult
 		{
-			enum class Status {
+			enum class Status
+			{
 				Success,
 				Failure
 			};
@@ -43,7 +44,8 @@ namespace HAL
 
 		struct SendMessageResult
 		{
-			enum class Status {
+			enum class Status
+			{
 				Success,
 				ConnectionClosed,
 				UnknownFailure

@@ -132,8 +132,7 @@ void LeakDetectorClass::printLeaks() noexcept
 		size_t leakedBytes = 0;
 		while (item != nullptr)
 		{
-			writeOstreamLine(logFileStream, "Error: Leaked ", item->size, " bytes (", std::hex, item->pointer, std::dec,
-				") allocated in ", item->file, "(", item->line, ")");
+			writeOstreamLine(logFileStream, "Error: Leaked ", item->size, " bytes (", std::hex, item->pointer, std::dec, ") allocated in ", item->file, "(", item->line, ")");
 			leakedBytes += item->size;
 			item = item->next;
 		}

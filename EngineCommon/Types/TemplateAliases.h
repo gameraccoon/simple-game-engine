@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <tuple>
+#include <vector>
 
 template<typename... Values>
 using TupleVector = std::vector<std::tuple<Values...>>;

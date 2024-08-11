@@ -23,4 +23,4 @@ namespace HAL
 	{
 		return mResourceManager;
 	}
-}
+} // namespace HAL

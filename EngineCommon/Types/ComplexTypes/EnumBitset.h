@@ -7,7 +7,7 @@
 /**
  * Bitset that can be used with enum class
 */
-template <typename T>
+template<typename T>
 class EnumBitset
 {
 public:

@@ -2,10 +2,9 @@
 
 #ifndef DISABLE_SDL
 
-#include "HAL/Audio/Music.h"
-
 #include <SDL_mixer.h>
 
+#include "HAL/Audio/Music.h"
 #include "HAL/Base/Engine.h"
 
 namespace Audio
@@ -29,6 +28,6 @@ namespace Audio
 	{
 		return mMusic != nullptr;
 	}
-}
+} // namespace Audio
 
 #endif // !DISABLE_SDL

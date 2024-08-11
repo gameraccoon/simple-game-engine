@@ -31,6 +31,6 @@ namespace Audio
 	private:
 		Mix_Music* mMusic = nullptr;
 	};
-}
+} // namespace Audio
 
 #endif // !DISABLE_SDL

@@ -77,7 +77,8 @@ private:
 
 namespace std
 {
-	template<> struct hash<RelativeResourcePath>
+	template<>
+	struct hash<RelativeResourcePath>
 	{
 		size_t operator()(RelativeResourcePath const& path) const noexcept
 		{
@@ -85,14 +86,15 @@ namespace std
 		}
 	};
 
-	template<> struct hash<AbsoluteResourcePath>
+	template<>
+	struct hash<AbsoluteResourcePath>
 	{
 		size_t operator()(AbsoluteResourcePath const& path) const noexcept
 		{
 			return hash<std::filesystem::path>{}(path.getAbsolutePath());
 		}
 	};
-}
+} // namespace std
 
 void to_json(nlohmann::json& outJson, const RelativeResourcePath& path);
 void from_json(const nlohmann::json& json, RelativeResourcePath& path);

@@ -189,7 +189,7 @@ Vector2D operator*(const float scalar, const Vector2D vector) noexcept
 
 void to_json(nlohmann::json& outJson, const Vector2D& vector)
 {
-	outJson = nlohmann::json{{"x", vector.x}, {"y", vector.y}};
+	outJson = nlohmann::json{ { "x", vector.x }, { "y", vector.y } };
 }
 
 void from_json(const nlohmann::json& json, Vector2D& outVector)
@@ -203,7 +203,7 @@ std::size_t std::hash<Vector2D>::operator()(const Vector2D k) const noexcept
 	return hash<float>()(k.x) ^ std::rotl(hash<float>()(k.y), 7);
 }
 
-static_assert(sizeof(Vector2D) == sizeof(int)*2, "Vector2D is too big");
+static_assert(sizeof(Vector2D) == sizeof(int) * 2, "Vector2D is too big");
 static_assert(std::is_trivial<Vector2D>(), "Vector2D should be trivial type");
 static_assert(std::is_standard_layout<Vector2D>(), "Vector2D should have standard layout");
 static_assert(std::is_trivially_copyable<Vector2D>(), "Vector2D should be trivially copyable");

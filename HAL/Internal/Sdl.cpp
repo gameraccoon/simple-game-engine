@@ -2,10 +2,10 @@
 
 #ifndef DISABLE_SDL
 
-#include "Sdl.h"
-
-#include <SDL.h>
 #include <stdexcept>
+
+#include "Sdl.h"
+#include <SDL.h>
 
 namespace HAL
 {
@@ -23,7 +23,7 @@ namespace HAL
 		{
 			SDL_Quit();
 		}
-	}
-}
+	} // namespace Internal
+} // namespace HAL
 
 #endif // !DISABLE_SDL

@@ -4,7 +4,6 @@
 
 #include <nlohmann/json.hpp>
 
-
 Border::Border(const Vector2D a, const Vector2D b) noexcept
 	: mPointA(a)
 	, mPointB(b)
@@ -44,8 +43,8 @@ bool SimpleBorder::operator!=(const SimpleBorder& other) const noexcept
 void to_json(nlohmann::json& outJson, const SimpleBorder& border)
 {
 	outJson = nlohmann::json{
-		{"a", border.a},
-		{"b", border.b}
+		{ "a", border.a },
+		{ "b", border.b }
 	};
 }
 

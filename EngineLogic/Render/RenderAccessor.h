@@ -1,19 +1,20 @@
 #pragma once
 
 #include <condition_variable>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <variant>
 #include <vector>
-#include <functional>
 
 #ifdef ENABLE_SCOPED_PROFILER
 #include "EngineCommon/Profile/ScopedProfiler.h"
 #endif // ENABLE_SCOPED_PROFILER
 
 #include "EngineData/Geometry/Vector2D.h"
-#include "GameData/Resources/ResourceHandle.h"
+
 #include "GameData/Render/RenderAccessorGameRef.h"
+#include "GameData/Resources/ResourceHandle.h"
 
 #include "HAL/Base/Types.h"
 
@@ -39,7 +40,7 @@ struct QuadRenderData
 	ResourceHandle spriteHandle;
 	Vector2D position;
 	Vector2D size;
-	Vector2D anchor = {0.5f, 0.5f};
+	Vector2D anchor = { 0.5f, 0.5f };
 	float rotation = 0.0f;
 	float alpha = 1.0f;
 };
@@ -87,8 +88,7 @@ struct RenderData
 		PolygonRenderData,
 		TextRenderData,
 		CustomRenderFunction,
-		FinalizeFrameCommand
-	>;
+		FinalizeFrameCommand>;
 
 	RenderData() = default;
 

@@ -19,6 +19,6 @@ namespace HAL
 			~SDLInstance();
 		};
 	}
-}
+} // namespace HAL
 
 #endif // !DISABLE_SDL

@@ -135,7 +135,7 @@ public:
 	}
 
 private:
-	std::atomic<int> mAcquiredCount{0};
+	std::atomic<int> mAcquiredCount{ 0 };
 	std::atomic<std::thread::id> mOwningThreadID;
 	const char* mLastLockedFile = "";
 	int mLastLockedLine = 0;
@@ -155,13 +155,13 @@ public:
 
 #ifdef CONCURRENT_ACCESS_DETECTION
 
-#define HELPER_DETECT_CONCURRENT_ACCESS_NAME(A,B) A##B
+#define HELPER_DETECT_CONCURRENT_ACCESS_NAME(A, B) A##B
 #define HELPER_DETECT_CONCURRENT_ACCESS_IMPL(dataRaceDetector, namePostfix) ConcurrentAccessDetector::Guard HELPER_DETECT_CONCURRENT_ACCESS_NAME(cadg_inst_, namePostfix)((dataRaceDetector), __FILE__, __LINE__)
 // macro generates a unique instance name of the guard for us
 #define DETECT_CONCURRENT_ACCESS(dataRaceDetector) HELPER_DETECT_CONCURRENT_ACCESS_IMPL((dataRaceDetector), __COUNTER__)
 
 // we specify the name of the guard as the second argument and should use it to unlock or lock back the guard
-#define DETECT_CONCURRENT_ACCESS_UNLOCKABLE(dataRaceDetector, guardName) ConcurrentAccessDetector::UniqueGuard (guardName)((dataRaceDetector), __FILE__, __LINE__)
+#define DETECT_CONCURRENT_ACCESS_UNLOCKABLE(dataRaceDetector, guardName) ConcurrentAccessDetector::UniqueGuard(guardName)((dataRaceDetector), __FILE__, __LINE__)
 #define CONCURRENT_ACCESS_DETECTOR_MANUAL_UNLOCK(guard) guard.release();
 #define CONCURRENT_ACCESS_DETECTOR_MANUAL_LOCK(guard) guard.reacquire(__FILE__, __LINE__);
 

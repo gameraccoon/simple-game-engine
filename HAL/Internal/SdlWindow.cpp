@@ -2,10 +2,10 @@
 
 #ifndef DISABLE_SDL
 
-#include "SdlWindow.h"
-
 #include <stdexcept>
 #include <string>
+
+#include "SdlWindow.h"
 #include <SDL.h>
 
 namespace HAL
@@ -13,12 +13,7 @@ namespace HAL
 	namespace Internal
 	{
 		Window::Window(const int width, const int height)
-			: mSDLWindow(SDL_CreateWindow("Game"
-				, SDL_WINDOWPOS_UNDEFINED
-				, SDL_WINDOWPOS_UNDEFINED
-				, width
-				, height
-				, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL))
+			: mSDLWindow(SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL))
 		{
 			if (mSDLWindow == nullptr)
 			{
@@ -40,7 +35,7 @@ namespace HAL
 		{
 			return mSDLWindow;
 		}
-	}
-}
+	} // namespace Internal
+} // namespace HAL
 
 #endif // !DISABLE_SDL

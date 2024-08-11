@@ -42,6 +42,6 @@ namespace Graphics
 		SDL_Surface* mSurface;
 		unsigned int mTextureID;
 	};
-}
+} // namespace Graphics
 
 #endif // !DISABLE_SDL

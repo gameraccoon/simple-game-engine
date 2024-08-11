@@ -41,6 +41,3 @@ static_assert(std::is_floating_point<raw_f32>(), "Should be floating point");
 
 static_assert(sizeof(f64) == 8, "Wrong size of type");
 static_assert(std::is_floating_point<raw_f64>(), "Should be floating point");
-
-
-

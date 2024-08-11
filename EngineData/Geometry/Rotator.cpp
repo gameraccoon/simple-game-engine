@@ -74,7 +74,7 @@ void Rotator::normalize() noexcept
 
 void to_json(nlohmann::json& outJson, const Rotator& rotator)
 {
-	outJson = nlohmann::json{{"v", rotator.mValue}};
+	outJson = nlohmann::json{ { "v", rotator.mValue } };
 }
 
 void from_json(const nlohmann::json& json, Rotator& outRotator)

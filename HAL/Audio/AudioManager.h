@@ -25,6 +25,6 @@ namespace Audio
 		// [0, 1]
 		void SetMusicVolume(float volume);
 		float GetMusicVolume();
-	}
-}
+	} // namespace AudioManager
+} // namespace Audio
 #endif // !DISABLE_SDL

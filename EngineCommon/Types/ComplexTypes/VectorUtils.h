@@ -7,7 +7,7 @@
 
 namespace VectorUtils
 {
-	template <typename T>
+	template<typename T>
 	void RemoveIndexes(std::vector<T>& inOutVector, const std::vector<size_t>& sortedIndexesToRemove)
 	{
 		if (sortedIndexesToRemove.empty())
@@ -38,7 +38,7 @@ namespace VectorUtils
 		inOutVector.erase(inOutVector.begin() + (vectorSize - indexesCount + skippedIndexes), inOutVector.end());
 	}
 
-	template <typename T>
+	template<typename T>
 	void RemoveIndexesFast(std::vector<T>& inOutVector, const std::vector<size_t>& sortedIndexesToRemove)
 	{
 		const size_t vectorSize = inOutVector.size();
@@ -100,4 +100,4 @@ namespace VectorUtils
 			}
 		}
 	}
-}
+} // namespace VectorUtils

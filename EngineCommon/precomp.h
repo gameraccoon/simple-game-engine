@@ -11,9 +11,9 @@
 #include <nlohmann/json_fwd.hpp>
 
 #include "EngineCommon/CompilerHelpers.h"
-#include "EngineCommon/Debug/MemoryLeakDetection.h"
-#include "EngineCommon/Types/String/StringId.h"
-#include "EngineCommon/Types/String/StringHelpers.h"
-#include "EngineCommon/Debug/Log.h"
 #include "EngineCommon/Debug/Assert.h"
+#include "EngineCommon/Debug/Log.h"
+#include "EngineCommon/Debug/MemoryLeakDetection.h"
 #include "EngineCommon/Profile/ScopedProfiler.h"
+#include "EngineCommon/Types/String/StringHelpers.h"
+#include "EngineCommon/Types/String/StringId.h"

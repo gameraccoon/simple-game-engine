@@ -5,6 +5,8 @@
 #define COMPILER_CLANG 2
 #define COMPILER_MSVC 3
 
+// clang-format off
+
 // define USED_COMPILER macro
 #if defined(__clang__)
 	#define USED_COMPILER COMPILER_CLANG
@@ -46,7 +48,7 @@
 	#define ASSUME(cond)
 #endif
 
-// desable clang diagnostics locally
+// disable clang diagnostics locally
 #if USED_COMPILER == COMPILER_CLANG
 	#define DISABLE_DIAG_PUSH(diagnostic_name) \
 		_Pragma("clang diagnostic push") \
@@ -57,3 +59,5 @@
 	#define DISABLE_DIAG_PUSH(diagnostic)
 	#define DISABLE_DIAG_POP
 #endif
+
+// clang-format on

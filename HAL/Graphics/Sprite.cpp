@@ -115,6 +115,6 @@ namespace Graphics
 	{
 		return {};
 	}
-}
+} // namespace Graphics
 
 #endif // !DISABLE_SDL

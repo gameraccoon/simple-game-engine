@@ -22,7 +22,7 @@ public:
 	SimpleBitset& operator=(SimpleBitset&&) = default;
 	~SimpleBitset() = default;
 
-	static size_t getBitCount()  noexcept { return BitCount; }
+	static size_t getBitCount() noexcept { return BitCount; }
 
 	void set(const size_t index, const bool isSet) noexcept
 	{
@@ -66,7 +66,7 @@ public:
 		}
 	}
 
-	static size_t getByteCount()  noexcept { return ByteCount; }
+	static size_t getByteCount() noexcept { return ByteCount; }
 	const std::byte* getRawData() const noexcept { return mBitset; }
 
 	void setRawData(const std::byte* data) noexcept

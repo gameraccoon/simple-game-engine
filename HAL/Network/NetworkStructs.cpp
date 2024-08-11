@@ -90,7 +90,7 @@ namespace HAL
 
 		std::optional<NetworkAddress> NetworkAddress::FromString(const std::string& str)
 		{
-			NetworkAddress result{std::make_unique<NetworkAddress::Impl>()};
+			NetworkAddress result{ std::make_unique<NetworkAddress::Impl>() };
 			// split string by ':'
 			auto colonPos = str.find(':');
 			std::string ipStr = str.substr(0, colonPos);

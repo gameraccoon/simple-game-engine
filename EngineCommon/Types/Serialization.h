@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
+#include <cmath>
 #include <cstddef>
 #include <optional>
-#include <cmath>
+#include <vector>
 
 #include "EngineCommon/Debug/Assert.h"
 #include "EngineCommon/Types/UnsafeSerialization.h"
@@ -141,4 +141,4 @@ namespace Serialization
 
 		return number;
 	}
-}
+} // namespace Serialization

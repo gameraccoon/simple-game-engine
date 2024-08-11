@@ -45,7 +45,7 @@ namespace ThreadPoolInternal
 			}
 		}
 	}
-}
+} // namespace ThreadPoolInternal
 
 struct ThreadPool::Impl
 {
@@ -85,8 +85,7 @@ void ThreadPool::spawnThreads(const size_t threadsCount, const size_t firstThrea
 	for (size_t i = 0; i < threadsCount; ++i)
 	{
 		const size_t threadId = mPimpl->threads.size() + firstThreadIndex;
-		mPimpl->threads.emplace_back([this, threadId]
-		{
+		mPimpl->threads.emplace_back([this, threadId] {
 			ThisThreadId = threadId;
 			workerThreadFunction();
 		});
@@ -116,7 +115,7 @@ void ThreadPool::processAndFinalizeTasks(const size_t finalizationGroupId)
 	FinalizerGroup& finalizerGroup = getOrCreateFinalizerGroup(finalizationGroupId);
 	lock.unlock();
 
-	while(finalizerGroup.tasksNotFinalizedCount.load(std::memory_order::acquire) > 0)
+	while (finalizerGroup.tasksNotFinalizedCount.load(std::memory_order::acquire) > 0)
 	{
 		if (const size_t count = finalizerGroup.readyFinalizers.try_dequeue_bulk(finalizersToExecute.begin(), finalizersToExecute.size()); count > 0)
 		{
@@ -153,11 +152,11 @@ void ThreadPool::workerThreadFunction()
 
 	Task currentTask;
 
-	while(true)
+	while (true)
 	{
 		{
 			std::unique_lock lock(mDataMutex);
-			mWorkerThreadWakeUp.wait(lock, [&]{ return mReadyToShutdown || !mTasksQueue.empty(); });
+			mWorkerThreadWakeUp.wait(lock, [&] { return mReadyToShutdown || !mTasksQueue.empty(); });
 
 			if (mReadyToShutdown)
 			{
@@ -203,7 +202,7 @@ void ThreadPool::finalizeTaskForGroup(ThreadPoolInternal::FinalizerGroup& finali
 
 	std::array<Finalizer, 24> finalizersToExecute;
 
-	while(finalizerGroup.tasksNotFinalizedCount.load(std::memory_order::acquire) > 0)
+	while (finalizerGroup.tasksNotFinalizedCount.load(std::memory_order::acquire) > 0)
 	{
 		if (const size_t count = finalizerGroup.readyFinalizers.try_dequeue_bulk(finalizersToExecute.begin(), finalizersToExecute.size()); count > 0)
 		{

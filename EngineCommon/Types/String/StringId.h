@@ -4,10 +4,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "EngineCommon/Types/BasicTypes.h"
-
 #include <fnv1a/hash_fnv1a_constexpr.h>
 #include <nlohmann/json_fwd.hpp>
+
+#include "EngineCommon/Types/BasicTypes.h"
 
 /**
  * String type used for technical identifiers that

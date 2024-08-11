@@ -23,9 +23,7 @@ public:
 	using Records = std::list<ScopeRecord>;
 
 	void addRecord(
-		std::chrono::time_point<std::chrono::system_clock>&& begin
-		, std::chrono::time_point<std::chrono::system_clock>&& end
-		, const char* scopeName
+		std::chrono::time_point<std::chrono::system_clock>&& begin, std::chrono::time_point<std::chrono::system_clock>&& end, const char* scopeName
 	)
 	{
 		mRecords.splice(mRecords.end(), mRecords, mRecords.begin());
@@ -55,9 +53,7 @@ public:
 	~ScopedProfiler()
 	{
 		gtlScopedProfilerData.addRecord(
-			std::move(mStart)
-			, std::chrono::system_clock::now()
-			, mScopeName
+			std::move(mStart), std::chrono::system_clock::now(), mScopeName
 		);
 	}
 
@@ -66,8 +62,9 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> mStart;
 };
 
-#define SCOPED_PROFILER_NAME(A,B) A##B
-#define SCOPED_PROFILER_IMPL(scopeName, namePostfix) ScopedProfiler SCOPED_PROFILER_NAME(cadg_inst_, namePostfix){(scopeName)}
+#define SCOPED_PROFILER_NAME(A, B) A##B
+#define SCOPED_PROFILER_IMPL(scopeName, namePostfix) \
+	ScopedProfiler SCOPED_PROFILER_NAME(cadg_inst_, namePostfix) { (scopeName) }
 // macro generates a unique instance name for us
 #define SCOPED_PROFILER(scopeName) SCOPED_PROFILER_IMPL((scopeName), __COUNTER__)
 #else

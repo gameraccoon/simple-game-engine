@@ -33,7 +33,8 @@ private:
 struct SimpleBorder
 {
 	SimpleBorder() = default;
-	SimpleBorder(const Vector2D a, const Vector2D b) : a(a), b(b) {}
+	SimpleBorder(const Vector2D a, const Vector2D b)
+		: a(a), b(b) {}
 
 	[[nodiscard]] bool operator==(const SimpleBorder& other) const noexcept;
 	[[nodiscard]] bool operator!=(const SimpleBorder& other) const noexcept;

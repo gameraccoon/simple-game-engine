@@ -2,10 +2,10 @@
 
 #ifdef DETECT_MEMORY_LEAKS
 
-#include <mutex>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 
 class LeakDetectorClass
 {

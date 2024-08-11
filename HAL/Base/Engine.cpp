@@ -2,16 +2,14 @@
 
 #ifndef DISABLE_SDL
 
-#include "HAL/Base/Engine.h"
-
 #include <algorithm>
 
 #include <glew/glew.h>
-
 #include <SDL_mixer.h>
 
 #include "EngineCommon/Debug/ConcurrentAccessDetector.h"
 
+#include "HAL/Base/Engine.h"
 #include "HAL/Base/GameLoop.h"
 #include "HAL/Graphics/Renderer.h"
 #include "HAL/IGame.h"
@@ -32,7 +30,7 @@ namespace HAL
 		const int mWindowWidth;
 		const int mWindowHeight;
 		Internal::Window mWindow;
-		Internal::GlContext mGlContext{mWindow};
+		Internal::GlContext mGlContext{ mWindow };
 		Graphics::Renderer mRenderer;
 		IGame* mGame = nullptr;
 		InputControllersData* mInputDataPtr = nullptr;
@@ -135,10 +133,9 @@ namespace HAL
 	{
 		AssertFatal(mGame, "Game should be set to Engine before calling start()");
 
-		RunGameLoop(*mGame, nullptr, [this]{ parseEvents(); }, [this]{
+		RunGameLoop(*mGame, nullptr, [this] { parseEvents(); }, [this] {
 			DETECT_CONCURRENT_ACCESS(gSDLEventsAccessDetector);
-			mLastFrameEvents.clear();
-		});
+			mLastFrameEvents.clear(); });
 	}
 
 	void Engine::Impl::parseEvents()
@@ -185,7 +182,7 @@ namespace HAL
 			case SDL_MOUSEMOTION:
 				if (mInputDataPtr)
 				{
-					const Vector2D windowSize{static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight)};
+					const Vector2D windowSize{ static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight) };
 					const Vector2D mouseRelativePos{
 						(event.motion.x / windowSize.x) * 2.0f - 1.0f,
 						(event.motion.y / windowSize.y) * 2.0f - 1.0f
@@ -201,6 +198,6 @@ namespace HAL
 			mLastFrameEvents.push_back(event);
 		}
 	}
-}
+} // namespace HAL
 
 #endif // !DISABLE_SDL
