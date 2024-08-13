@@ -8,34 +8,25 @@
 
 namespace HAL
 {
-	template<typename ShouldStopFnT = std::nullptr_t, typename OnIterationFnT = std::nullptr_t, typename AfterFrameFnT = std::nullptr_t>
-	void RunGameLoop(IGame& game, ShouldStopFnT&& shouldStopFn = nullptr, OnIterationFnT&& onIterationFn = nullptr, AfterFrameFnT&& afterFrameFn = nullptr)
+	// Why we need a class for a game loop? For emscripten we have to give control back to the
+	// browser code after each loop so we have to store state somewhere outside of the function
+	// And it is better not to duplicate the code for different platforms
+	class GameLoopRunner
 	{
-		constexpr auto oneFrameDuration = TimeConstants::ONE_FIXED_UPDATE_DURATION;
+	public:
+		GameLoopRunner() noexcept
+			: mLastFrameTime(std::chrono::steady_clock::now() - TimeConstants::ONE_FIXED_UPDATE_DURATION)
+		{}
 
-		auto lastFrameTime = std::chrono::steady_clock::now() - oneFrameDuration;
-
-		while (!game.shouldQuitGame())
+		template<typename AfterFrameFnT = std::nullptr_t>
+		void loopBodyFn(IGame& game, AfterFrameFnT&& afterFrameFn = nullptr) noexcept
 		{
-			if constexpr (!std::is_same_v<ShouldStopFnT, std::nullptr_t>)
-			{
-				if (shouldStopFn())
-				{
-					break;
-				}
-			}
+			const auto timeNow = std::chrono::steady_clock::now();
 
-			if constexpr (!std::is_same_v<OnIterationFnT, std::nullptr_t>)
-			{
-				onIterationFn();
-			}
+			mIterationsThisFrame = 0;
+			auto passedTime = timeNow - mLastFrameTime;
 
-			auto timeNow = std::chrono::steady_clock::now();
-
-			int iterationsThisFrame = 0;
-			auto passedTime = timeNow - lastFrameTime;
-
-			const auto correctedOneFrameDuration = oneFrameDuration + game.getFrameLengthCorrection();
+			const auto correctedOneFrameDuration = TimeConstants::ONE_FIXED_UPDATE_DURATION + game.getFrameLengthCorrection();
 			if (passedTime >= correctedOneFrameDuration)
 			{
 				// if we exceeded max frame ticks last frame, that likely mean we were staying on a breakpoint
@@ -50,35 +41,71 @@ namespace HAL
 				while (passedTime >= correctedOneFrameDuration)
 				{
 					passedTime -= correctedOneFrameDuration;
-					++iterationsThisFrame;
+					++mIterationsThisFrame;
 				}
 
 				game.notPausablePreFrameUpdate(lastFrameDurationSec);
 
 				if (!game.shouldPauseGame())
 				{
-					game.dynamicTimePreFrameUpdate(lastFrameDurationSec, iterationsThisFrame);
-					for (int i = 0; i < iterationsThisFrame; ++i)
+					game.dynamicTimePreFrameUpdate(lastFrameDurationSec, mIterationsThisFrame);
+					for (int i = 0; i < mIterationsThisFrame; ++i)
 					{
 						game.fixedTimeUpdate(TimeConstants::ONE_FIXED_UPDATE_SEC);
 					}
-					game.dynamicTimePostFrameUpdate(lastFrameDurationSec, iterationsThisFrame);
+					game.dynamicTimePostFrameUpdate(lastFrameDurationSec, mIterationsThisFrame);
 				}
 
 				game.notPausablePostFrameUpdate(lastFrameDurationSec);
 
-				lastFrameTime = timeNow - passedTime;
+				mLastFrameTime = timeNow - passedTime;
 
 				if constexpr (!std::is_same_v<AfterFrameFnT, std::nullptr_t>)
 				{
 					afterFrameFn();
 				}
 			}
+		}
 
-			if (iterationsThisFrame <= 1)
+		template<typename ShouldStopFnT = std::nullptr_t, typename OnIterationFnT = std::nullptr_t, typename AfterFrameFnT = std::nullptr_t>
+		void run(IGame& game, ShouldStopFnT&& shouldStopFn = nullptr, OnIterationFnT&& onIterationFn = nullptr, AfterFrameFnT&& afterFrameFn = nullptr) noexcept
+		{
+			while (!game.shouldQuitGame())
 			{
-				std::this_thread::yield();
+				if constexpr (!std::is_same_v<ShouldStopFnT, std::nullptr_t>)
+				{
+					if (shouldStopFn())
+					{
+						break;
+					}
+				}
+
+				if constexpr (!std::is_same_v<OnIterationFnT, std::nullptr_t>)
+				{
+					onIterationFn();
+				}
+
+				loopBodyFn(
+					game,
+					std::forward<AfterFrameFnT>(afterFrameFn)
+				);
+
+				if (mIterationsThisFrame <= 1)
+				{
+					std::this_thread::yield();
+				}
 			}
 		}
+
+	private:
+		std::chrono::time_point<std::chrono::steady_clock> mLastFrameTime;
+		int mIterationsThisFrame = 0;
+	};
+
+	template<typename ShouldStopFnT = std::nullptr_t, typename OnIterationFnT = std::nullptr_t, typename AfterFrameFnT = std::nullptr_t>
+	void RunGameLoop(IGame& game, ShouldStopFnT&& shouldStopFn = nullptr, OnIterationFnT&& onIterationFn = nullptr, AfterFrameFnT&& afterFrameFn = nullptr) noexcept
+	{
+		GameLoopRunner loopRunner;
+		loopRunner.run(game, std::move(shouldStopFn), std::move(onIterationFn), std::move(afterFrameFn));
 	}
 } // namespace HAL
