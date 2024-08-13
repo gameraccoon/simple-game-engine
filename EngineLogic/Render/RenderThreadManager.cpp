@@ -26,7 +26,7 @@ namespace RenderThreadManagerInternal
 	static int gTotalGameInstancesCount = 1;
 	static unsigned int gGameInstancesLeftBitset = (1u << gTotalGameInstancesCount) - 1u;
 
-	static Vector2D CalculateRenderShift(int gameInstanceIdx)
+	static Vector2D CalculateRenderShift(const int gameInstanceIdx)
 	{
 		return Vector2D{ 300.0f * static_cast<float>(gameInstanceIdx % 2), 300.0f * static_cast<float>(gameInstanceIdx / 2) };
 	}
@@ -340,7 +340,7 @@ void RenderThreadManager::testRunMainThread(RenderAccessor& renderAccessor, Reso
 	ProcessRenderQueue(dataToRender, resourceManager, engine);
 }
 
-void RenderThreadManager::setAmountOfRenderedGameInstances(int instancesCount)
+void RenderThreadManager::setAmountOfRenderedGameInstances(const int instancesCount)
 {
 	using namespace RenderThreadManagerInternal;
 
