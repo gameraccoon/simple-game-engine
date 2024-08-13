@@ -38,6 +38,8 @@ namespace HAL
 		SDL_Window* getRawWindow();
 		void* getRawGlContext();
 
+		// these are manual functions that should be called by the game loop
+		void parseEvents();
 		std::vector<SDL_Event>& getLastFrameEvents();
 
 	private:

@@ -123,6 +123,11 @@ namespace HAL
 		return mPimpl->mGlContext.getRawGLContext();
 	}
 
+	void Engine::parseEvents()
+	{
+		mPimpl->parseEvents();
+	}
+
 	std::vector<SDL_Event>& Engine::getLastFrameEvents()
 	{
 		DETECT_CONCURRENT_ACCESS(gSDLEventsAccessDetector);
