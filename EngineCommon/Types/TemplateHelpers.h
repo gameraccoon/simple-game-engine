@@ -25,6 +25,6 @@ namespace TemplateHelpers
 	template<typename T, typename Container, typename... Args>
 	T& EmplaceVariant(Container& container, Args&&... args)
 	{
-		return std::get<T>(container.TEMPLATE_MSVC_FIX emplace_back(std::in_place_type<T>, std::forward<Args>(args)...));
+		return std::get<T>(container.TEMPLATE_MSVC_EMSCRIPTEN_FIX emplace_back(std::in_place_type<T>, std::forward<Args>(args)...));
 	}
 } // namespace TemplateHelpers
