@@ -67,5 +67,9 @@ void Log::writeLine(const char* logPrefix, const std::string& text)
 		mLogWriteMutex.unlock();
 	}
 
+#ifndef WEB_BUILD
 	std::clog << text << "\n";
+#else
+	std::cout << text << "\n";
+#endif
 }
