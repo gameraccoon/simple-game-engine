@@ -330,7 +330,7 @@ void RenderThreadManager::shutdownThread()
 	}
 }
 
-void RenderThreadManager::testRunMainThread(RenderAccessor& renderAccessor, ResourceManager& resourceManager, HAL::Engine& engine)
+void RenderThreadManager::runInMainThread(RenderAccessor& renderAccessor, ResourceManager& resourceManager, HAL::Engine& engine)
 {
 	using namespace RenderThreadManagerInternal;
 

@@ -31,8 +31,11 @@ public:
 
 	void setAmountOfRenderedGameInstances(int instancesCount);
 
-	// debug code
-	void testRunMainThread(RenderAccessor& renderAccessor, ResourceManager& resourceManager, HAL::Engine& engine);
+	/**
+	 * Run rendering in the main thread.
+	 * For this to work we need to make sure we don't call `startThread` or `shutdownThread`
+	 */
+	void runInMainThread(RenderAccessor& renderAccessor, ResourceManager& resourceManager, HAL::Engine& engine);
 
 private:
 	static void RenderThreadFunction(RenderAccessor& renderAccessor, ResourceManager& resourceManager, HAL::Engine& engine);
