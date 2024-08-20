@@ -1,8 +1,8 @@
 #include "EngineCommon/precomp.h"
 
-#ifndef DISABLE_SDL
-
 #include "HAL/Internal/SdlWindow.h"
+
+#ifndef DISABLE_SDL
 
 #include <stdexcept>
 #include <string>
