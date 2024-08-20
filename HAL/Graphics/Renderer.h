@@ -2,7 +2,6 @@
 
 #ifndef DISABLE_SDL
 
-#include <array>
 #include <vector>
 
 #include <glm/fwd.hpp>
@@ -36,21 +35,7 @@ namespace Graphics
 		void DrawFan(const std::vector<DrawPoint>& points, const glm::mat4& transform, float alpha);
 		void DrawStrip(const std::vector<DrawPoint>& points, const glm::mat4& transform, float alpha);
 		void DrawTiledQuad(Vector2D start, Vector2D size, const QuadUV& uv);
-	}
-
-	class Renderer
-	{
-	public:
-		Renderer() = default;
-
-		Renderer(const Renderer&) = delete;
-		Renderer& operator=(const Renderer&) = delete;
-		Renderer(Renderer&&) = delete;
-		Renderer& operator=(Renderer&&) = delete;
-
-		void renderText(const Font& font, Vector2D pos, Color color, const char* text);
-		std::array<int, 2> getTextSize(const Font& font, const char* text);
-	};
+	} // namespace Render
 } // namespace Graphics
 
 #endif // !DISABLE_SDL

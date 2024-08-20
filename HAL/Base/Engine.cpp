@@ -11,7 +11,6 @@
 
 #include "HAL/Base/Engine.h"
 #include "HAL/Base/GameLoop.h"
-#include "HAL/Graphics/Renderer.h"
 #include "HAL/IGame.h"
 #include "HAL/Internal/GlContext.h"
 #include "HAL/Internal/Sdl.h"
@@ -31,7 +30,6 @@ namespace HAL
 		const int mWindowHeight;
 		Internal::Window mWindow;
 		Internal::GlContext mGlContext{ mWindow };
-		Graphics::Renderer mRenderer;
 		IGame* mGame = nullptr;
 		InputControllersData* mInputDataPtr = nullptr;
 

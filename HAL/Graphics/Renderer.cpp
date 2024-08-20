@@ -108,7 +108,7 @@ namespace Graphics
 	void Render::DrawTiledQuad(const Vector2D start, const Vector2D size, const QuadUV& uv)
 	{
 		DETECT_CONCURRENT_ACCESS(HAL::gSDLAccessDetector);
-		glm::mat4 transform{ 1.0f };
+		constexpr glm::mat4 transform{ 1.0f };
 		glLoadMatrixf(reinterpret_cast<const float*>(&transform));
 
 		glBegin(GL_QUADS);
@@ -122,17 +122,6 @@ namespace Graphics
 		glTexCoord2f(uv.u1, uv.v1);
 		glVertex2f(start.x, start.y);
 		glEnd();
-	}
-
-	void Renderer::renderText(const Graphics::Font& /*font*/, Vector2D /*pos*/, Graphics::Color /*color*/, const char* /*text*/)
-	{
-		//FC_DrawColor(font.getRawFont(), mRenderer, pos.x, pos.y, { color.R, color.G, color.B, color.A }, text);
-	}
-
-	std::array<int, 2> Renderer::getTextSize(const Graphics::Font& /*font*/, const char* /*text*/)
-	{
-		//return { FC_GetWidth(font.getRawFont(), text), FC_GetHeight(font.getRawFont(), text) };
-		return { 1, 1 };
 	}
 } // namespace Graphics
 
