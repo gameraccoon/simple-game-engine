@@ -4,28 +4,25 @@
 
 struct SDL_Window;
 
-namespace HAL
+namespace HAL::Internal
 {
-	namespace Internal
+	class Window
 	{
-		class Window
-		{
-		public:
-			Window(int width, int height);
+	public:
+		Window(int width, int height);
 
-			Window(const Window&) = delete;
-			Window& operator=(const Window&) = delete;
-			Window(Window&&) = delete;
-			Window& operator=(Window&&) = delete;
-			~Window();
+		Window(const Window&) = delete;
+		Window& operator=(const Window&) = delete;
+		Window(Window&&) = delete;
+		Window& operator=(Window&&) = delete;
+		~Window();
 
-			SDL_Window* getRawWindow();
-			void show();
+		SDL_Window* getRawWindow();
+		void show();
 
-		private:
-			SDL_Window* mSDLWindow;
-		};
-	} // namespace Internal
-} // namespace HAL
+	private:
+		SDL_Window* mSDLWindow;
+	};
+} // namespace HAL::Internal
 
 #endif // !DISABLE_SDL

@@ -12,13 +12,10 @@
 
 struct SDL_Renderer;
 
-namespace HAL
+namespace HAL::Internal
 {
-	namespace Internal
-	{
-		class Window;
-	}
-}
+	class Window;
+} // namespace HAL::Internal
 
 namespace Graphics
 {

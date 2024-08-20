@@ -6,30 +6,27 @@
 
 #include <SDL.h>
 
-namespace HAL
+namespace HAL::Internal
 {
-	namespace Internal
+	class Window;
+
+	class GlContext
 	{
-		class Window;
+	public:
+		explicit GlContext(Window& window);
 
-		class GlContext
-		{
-		public:
-			explicit GlContext(Window& window);
+		GlContext(const GlContext&) = delete;
+		GlContext operator=(const GlContext&) = delete;
+		GlContext(GlContext&&) = delete;
+		GlContext operator=(GlContext&&) = delete;
 
-			GlContext(const GlContext&) = delete;
-			GlContext operator=(const GlContext&) = delete;
-			GlContext(GlContext&&) = delete;
-			GlContext operator=(GlContext&&) = delete;
+		~GlContext();
 
-			~GlContext();
+		SDL_GLContext getRawGLContext();
 
-			SDL_GLContext getRawGLContext();
-
-		private:
-			SDL_GLContext mContext;
-		};
-	} // namespace Internal
-} // namespace HAL
+	private:
+		SDL_GLContext mContext;
+	};
+} // namespace HAL::Internal
 
 #endif // !DISABLE_SDL
