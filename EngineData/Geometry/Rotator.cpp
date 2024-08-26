@@ -14,7 +14,7 @@ Rotator::Rotator(const float angle) noexcept
 
 bool Rotator::isNearlyEqualTo(const Rotator other) const noexcept
 {
-	const float difference = this->getValue() - other.getValue();
+	const float difference = getValue() - other.getValue();
 	return Math::AreEqualWithEpsilon(difference, 0) || Math::AreEqualWithEpsilon(difference, TWO_PI);
 }
 

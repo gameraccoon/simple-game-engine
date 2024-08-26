@@ -26,9 +26,7 @@ ArgumentsParser::ArgumentsParser(const int argc, char** argv, const std::string&
 
 std::optional<std::string> ArgumentsParser::getArgumentValue(const std::string& argument) const
 {
-	std::vector<std::string>::const_iterator itr = std::ranges::find(this->mTokens, mArgumentSwitch + argument);
-
-	if (itr != mTokens.end())
+	if (auto itr = std::ranges::find(mTokens, mArgumentSwitch + argument); itr != mTokens.end())
 	{
 		++itr;
 
@@ -46,9 +44,7 @@ std::optional<std::string> ArgumentsParser::getArgumentValue(const std::string& 
 
 Result<int, std::string> ArgumentsParser::getIntArgumentValue(const std::string& argument) const
 {
-	std::vector<std::string>::const_iterator itr = std::ranges::find(this->mTokens, mArgumentSwitch + argument);
-
-	if (itr != mTokens.end())
+	if (auto itr = std::ranges::find(mTokens, mArgumentSwitch + argument); itr != mTokens.end())
 	{
 		++itr;
 		if (itr != mTokens.end())
@@ -56,14 +52,12 @@ Result<int, std::string> ArgumentsParser::getIntArgumentValue(const std::string&
 			if (!itr->starts_with(mArgumentSwitch))
 			{
 				std::optional<int> result = String::ParseInt(itr->data(), 10);
-				if (result.has_value())
-				{
-					return Result<int, std::string>::Ok(result.value());
-				}
-				else
+				if (!result.has_value())
 				{
 					return Result<int, std::string>::Err(std::format("Argument {} expected to have integer value, but the value is '{}'", argument.c_str(), itr->c_str()));
 				}
+
+				return Result<int, std::string>::Ok(result.value());
 			}
 		}
 	}
