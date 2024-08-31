@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 #include "EngineCommon/Types/String/StringId.h"
 
@@ -11,7 +12,7 @@ template<typename T>
 StringId enum_to_string(T value);
 
 template<typename T>
-T string_to_enum(StringId value);
+std::optional<T> string_to_enum(StringId value);
 
 template<typename T>
 std::vector<T> get_all_enum_values();
