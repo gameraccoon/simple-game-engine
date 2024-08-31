@@ -19,9 +19,17 @@ public:
 	explicit RelativeResourcePath(RelativePath&& relativePath)
 		: mRelativePath(std::forward<RelativePath>(relativePath))
 	{
-		if (mRelativePath.is_absolute())
+		if (mRelativePath.is_absolute()) [[unlikely]]
 		{
 			ReportError("Absolute path '%s' disguised as relative", mRelativePath.string().c_str());
+			mRelativePath = "";
+		}
+
+		mRelativePath = mRelativePath.lexically_normal();
+
+		if (mRelativePath.string().find("..") != std::string::npos) [[unlikely]]
+		{
+			ReportError("Path '%s' has path leading outside of the resource directory", mRelativePath.string().c_str());
 			mRelativePath = "";
 		}
 	}
