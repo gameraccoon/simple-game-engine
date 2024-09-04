@@ -53,6 +53,11 @@ public:
 		return nullptr;
 	}
 
+	bool hasValue() const noexcept
+	{
+		return mData != nullptr;
+	}
+
 private:
 	struct AbstractStoredData
 	{

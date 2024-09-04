@@ -50,16 +50,19 @@ void ResourceManager::unlockResource(ResourceHandle handle)
 		return;
 	}
 
+	// we still have other places that lock this resource
 	if (locksCntIt->second > 1)
 	{
 		--(locksCntIt->second);
 		return;
 	}
-	else
+
+	// release the resource
+	const auto resourceIt = mStorage.resources.find(handle);
+	if (resourceIt != mStorage.resources.end())
 	{
-		// release the resource
-		const auto resourceIt = mStorage.resources.find(handle);
-		if (resourceIt != mStorage.resources.end())
+		// if the resource is already loaded, execute deinit steps
+		if (resourceIt->second != nullptr)
 		{
 			// unload and delete
 			Resource::DeinitSteps deinitSteps = resourceIt->second->getDeinitSteps();
@@ -83,8 +86,8 @@ void ResourceManager::unlockResource(ResourceHandle handle)
 				unlockResource(ResourceHandle(resourceHandle));
 			}
 		}
-		mStorage.resourceLocksCount.erase(handle);
 	}
+	mStorage.resourceLocksCount.erase(handle);
 }
 
 void ResourceManager::loadAtlasesData(const RelativeResourcePath& listPath)
@@ -153,6 +156,10 @@ void ResourceManager::runThreadTasks(const Resource::Thread currentThread)
 				if (loadingData->stepsLeft.empty())
 				{
 					Resource::Ptr* resultDataPtr = loadingData->resourceData.cast<Resource::Ptr>();
+					if (!resultDataPtr && loadingData->resourceData.hasValue())
+					{
+						ReportError("The last step of resource loading returned a wrong type of resource, excepted Resource::Ptr");
+					}
 					finalizeResourceLoading(loadingData->handle, (resultDataPtr ? std::move(*resultDataPtr) : Resource::Ptr{}));
 					// this invalidates "step" variable
 					resourceIt = mLoading.resourcesWaitingInit.erase(resourceIt);
