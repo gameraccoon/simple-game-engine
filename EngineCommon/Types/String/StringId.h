@@ -58,7 +58,7 @@ class StringIdManager
 public:
 	// never call this function explicitly
 	// use STR_TO_ID macro as it being parsed by external code preprocessing tools)
-	// see scripts/build/generators/generate_string_ids.py
+	// see tools/build/generators/generate_string_ids.py
 	static consteval StringId StringToId(const char* const stringLiteral) noexcept
 	{
 		return StringId(hash_64_fnv1a_const(stringLiteral));
