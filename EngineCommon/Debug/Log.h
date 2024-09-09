@@ -24,7 +24,7 @@ public:
 	/* Logging functions */
 	void writeError(const std::string& text);
 	void writeWarning(const std::string& text);
-	void writeLog(const std::string& text);
+	void writeInfo(const std::string& text);
 	void writeInit(const std::string& text);
 
 private:
@@ -49,7 +49,7 @@ void LogInit(const std::string& message, Args&&... args) noexcept
 template<typename... Args>
 void LogInfo(const std::string& message, Args&&... args) noexcept
 {
-	Log::Instance().writeLog(FormatString(message, std::forward<Args>(args)...));
+	Log::Instance().writeInfo(FormatString(message, std::forward<Args>(args)...));
 }
 
 template<typename... Args>

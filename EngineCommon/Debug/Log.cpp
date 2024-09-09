@@ -18,12 +18,12 @@ Log::Log()
 	}
 
 	mLogFileStream = std::ofstream(LOG_FILE);
-	writeLog("Log file created");
+	writeInfo("Log file created");
 }
 
 Log::~Log()
 {
-	writeLog("End of log");
+	writeInfo("End of log");
 	mLogFileStream.close();
 }
 
@@ -35,30 +35,30 @@ Log& Log::Instance()
 
 void Log::writeError(const std::string& text)
 {
-	writeLine("Error: ", text);
+	writeLine("[ERR]: ", text);
 }
 
 void Log::writeWarning(const std::string& text)
 {
-	writeLine("Warning: ", text);
+	writeLine("[WARN]: ", text);
 }
 
-void Log::writeLog(const std::string& text)
+void Log::writeInfo(const std::string& text)
 {
-	writeLine("Log: ", text);
+	writeLine("[INFO]: ", text);
 }
 
 void Log::writeInit(const std::string& text)
 {
-	writeLine("Init: ", text);
+	writeLine("[INIT]: ", text);
 }
 
 void Log::writeLine(const char* logPrefix, const std::string& text)
 {
 	if (mLogFileStream.is_open())
 	{
-		auto now = std::chrono::system_clock::now();
-		auto in_time_t = std::chrono::system_clock::to_time_t(now);
+		const auto now = std::chrono::system_clock::now();
+		const auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
 		mLogWriteMutex.lock();
 		mLogFileStream << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X [") << std::this_thread::get_id() << "] ";
@@ -68,8 +68,8 @@ void Log::writeLine(const char* logPrefix, const std::string& text)
 	}
 
 #ifndef WEB_BUILD
-	std::clog << text << "\n";
+	std::clog << logPrefix << text << "\n";
 #else
-	std::cout << text << "\n";
+	std::cout << logPrefix << text << "\n";
 #endif
 }
