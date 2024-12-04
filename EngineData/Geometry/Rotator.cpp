@@ -54,6 +54,12 @@ Rotator Rotator::operator-=(const Rotator right) noexcept
 	return *this;
 }
 
+Rotator Rotator::GetFraction(const Rotator r1, const Rotator r2, const float alpha)
+{
+	const float result = NormalizeRawAngle(r1.getValue() - r2.getValue()) * (1.0f - alpha);
+	return Rotator(result);
+}
+
 float Rotator::NormalizeRawAngle(float rawAngle)
 {
 	while (rawAngle <= -PI)

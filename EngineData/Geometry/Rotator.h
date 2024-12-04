@@ -36,6 +36,8 @@ public:
 	[[nodiscard]] Rotator operator-(Rotator right) const noexcept;
 	Rotator operator-=(Rotator right) noexcept;
 
+	static Rotator GetFraction(Rotator r1, Rotator r2, float alpha);
+
 	friend void to_json(nlohmann::json& outJson, const Rotator& rotator);
 	friend void from_json(const nlohmann::json& json, Rotator& outRotator);
 
