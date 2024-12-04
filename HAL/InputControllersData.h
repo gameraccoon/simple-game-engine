@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameData/Input/PlayerControllerStates.h"
+#include "EngineData/Input/PlayerControllerStates.h"
 
 namespace HAL
 {
