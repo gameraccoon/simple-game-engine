@@ -17,7 +17,7 @@ namespace HAL
 		// called once after batch of updates that needs to be executed in this render frame
 		virtual void dynamicTimePostFrameUpdate(float dt, int processedFixedTimeUpdates) = 0;
 		// called once at the end of a render frame even if the simulation is paused
-		virtual void notPausablePostFrameUpdate(float dt) = 0;
+		virtual void notPausableRenderUpdate(float frameAlpha) = 0;
 		virtual void initResources() = 0;
 
 		virtual bool shouldPauseGame() const = 0;

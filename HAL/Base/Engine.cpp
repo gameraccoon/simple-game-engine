@@ -109,6 +109,11 @@ namespace HAL
 		SDL_GL_MakeCurrent(mPimpl->mWindow.getRawWindow(), mPimpl->mGlContext.getRawGLContext());
 	}
 
+	void Engine::parseEvents()
+	{
+		mPimpl->parseEvents();
+	}
+
 	SDL_Window* Engine::getRawWindow()
 	{
 		DETECT_CONCURRENT_ACCESS(gSDLAccessDetector);
@@ -121,24 +126,23 @@ namespace HAL
 		return mPimpl->mGlContext.getRawGLContext();
 	}
 
-	void Engine::parseEvents()
-	{
-		mPimpl->parseEvents();
-	}
-
 	std::vector<SDL_Event>& Engine::getLastFrameEvents()
 	{
 		DETECT_CONCURRENT_ACCESS(gSDLEventsAccessDetector);
 		return mPimpl->mLastFrameEvents;
 	}
 
+	void Engine::clearLastFrameEvents()
+	{
+		DETECT_CONCURRENT_ACCESS(gSDLEventsAccessDetector);
+		mPimpl->mLastFrameEvents.clear();
+	}
+
 	void Engine::Impl::start()
 	{
 		AssertFatal(mGame, "Game should be set to Engine before calling start()");
 
-		RunGameLoop(*mGame, nullptr, [this] { parseEvents(); }, [this] {
-			DETECT_CONCURRENT_ACCESS(gSDLEventsAccessDetector);
-			mLastFrameEvents.clear(); });
+		RunGameLoop(*mGame, nullptr, [this] { parseEvents(); });
 	}
 
 	void Engine::Impl::parseEvents()

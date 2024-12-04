@@ -31,16 +31,20 @@ namespace HAL
 
 		Vector2D getWindowSize() const;
 
+		// functions to transfer the rendering context to another thread
 		void releaseRenderContext();
 		void acquireRenderContext();
+
+		// this should be called only by the game loop
+		void parseEvents();
 
 		// for debug tools such as imgui
 		SDL_Window* getRawWindow();
 		void* getRawGlContext();
 
-		// these are manual functions that should be called by the game loop
-		void parseEvents();
+		// these are used for ImGui and similar immediate-mode systems that are processed in render loop
 		std::vector<SDL_Event>& getLastFrameEvents();
+		void clearLastFrameEvents();
 
 	private:
 		struct Impl;

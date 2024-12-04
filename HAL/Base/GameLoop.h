@@ -8,57 +8,75 @@
 
 namespace HAL
 {
-	// Why we need a class for a game loop? For emscripten we have to give control back to the
-	// browser code after each loop so we have to store state somewhere outside of the function
-	// And it is better not to duplicate the code for different platforms
 	class GameLoopRunner
 	{
 	public:
 		GameLoopRunner() noexcept
-			: mLastFrameTime(std::chrono::steady_clock::now() - TimeConstants::ONE_FIXED_UPDATE_DURATION)
+			: mLastRenderTime(std::chrono::steady_clock::now() - mMinRenderFrameDuration)
+			, mLastFixedUpdateTime(std::chrono::steady_clock::now() - TimeConstants::ONE_FIXED_UPDATE_DURATION)
 		{}
 
 		template<typename AfterFrameFnT = std::nullptr_t>
 		void loopBodyFn(IGame& game, AfterFrameFnT&& afterFrameFn = nullptr) noexcept
 		{
-			const auto timeNow = std::chrono::steady_clock::now();
+			const auto timeBeforeUpdate = std::chrono::steady_clock::now();
 
-			mIterationsThisFrame = 0;
-			auto passedTime = timeNow - mLastFrameTime;
+			mUpdatesThisFrame = 0;
+			auto passedTimeFromLastUpdate = timeBeforeUpdate - mLastFixedUpdateTime;
 
-			const auto correctedOneFrameDuration = TimeConstants::ONE_FIXED_UPDATE_DURATION + game.getFrameLengthCorrection();
-			if (passedTime >= correctedOneFrameDuration)
+			const auto correctedOneUpdateDuration = TimeConstants::ONE_FIXED_UPDATE_DURATION + game.getFrameLengthCorrection();
+
+			const bool shouldUpdateSimulation = passedTimeFromLastUpdate >= correctedOneUpdateDuration;
+
+			if (shouldUpdateSimulation)
 			{
-				// if we exceeded max frame ticks last frame, that likely mean we were staying on a breakpoint
+				// if we exceeded max frame ticks last frame, that likely means we were staying on a breakpoint
 				// so, let's readjust to normal ticking speed
-				if (passedTime > TimeConstants::MAX_FRAME_DURATION)
+				if (passedTimeFromLastUpdate > TimeConstants::MAX_FRAME_DURATION)
 				{
-					passedTime = correctedOneFrameDuration;
+					passedTimeFromLastUpdate = correctedOneUpdateDuration;
 				}
 
-				const float lastFrameDurationSec = std::chrono::duration<float>(passedTime).count();
-
-				while (passedTime >= correctedOneFrameDuration)
+				while (passedTimeFromLastUpdate >= correctedOneUpdateDuration)
 				{
-					passedTime -= correctedOneFrameDuration;
-					++mIterationsThisFrame;
+					passedTimeFromLastUpdate -= correctedOneUpdateDuration;
+					++mUpdatesThisFrame;
 				}
 
-				game.notPausablePreFrameUpdate(lastFrameDurationSec);
+				const float timeFromLastUpdate = std::chrono::duration<float>(passedTimeFromLastUpdate).count();
+
+				game.notPausablePreFrameUpdate(timeFromLastUpdate);
 
 				if (!game.shouldPauseGame())
 				{
-					game.dynamicTimePreFrameUpdate(lastFrameDurationSec, mIterationsThisFrame);
-					for (int i = 0; i < mIterationsThisFrame; ++i)
+					game.dynamicTimePreFrameUpdate(timeFromLastUpdate, mUpdatesThisFrame);
+					for (int i = 0; i < mUpdatesThisFrame; ++i)
 					{
 						game.fixedTimeUpdate(TimeConstants::ONE_FIXED_UPDATE_SEC);
 					}
-					game.dynamicTimePostFrameUpdate(lastFrameDurationSec, mIterationsThisFrame);
+					game.dynamicTimePostFrameUpdate(timeFromLastUpdate, mUpdatesThisFrame);
 				}
 
-				game.notPausablePostFrameUpdate(lastFrameDurationSec);
+				mLastFixedUpdateTime = timeBeforeUpdate - passedTimeFromLastUpdate;
+			}
 
-				mLastFrameTime = timeNow - passedTime;
+			// the update can take some time, update the timer
+			const auto timeBeforeRender = shouldUpdateSimulation ? std::chrono::steady_clock::now() : timeBeforeUpdate;
+			const auto passedTimeFromLastRender = timeBeforeRender - mLastRenderTime;
+			const bool shouldRender = passedTimeFromLastRender >= mMinRenderFrameDuration;
+			if (shouldRender)
+			{
+				if (!shouldUpdateSimulation)
+				{
+					passedTimeFromLastUpdate = timeBeforeRender - mLastFixedUpdateTime;
+				}
+
+				// at which point between updates we are (0 - just updated, 1 - about to update)
+				const float frameAlpha = std::chrono::duration<float>(passedTimeFromLastUpdate).count() / std::chrono::duration<float>(correctedOneUpdateDuration).count();
+
+				game.notPausableRenderUpdate(frameAlpha);
+
+				mLastRenderTime = timeBeforeRender;
 
 				if constexpr (!std::is_same_v<AfterFrameFnT, std::nullptr_t>)
 				{
@@ -90,7 +108,7 @@ namespace HAL
 					std::forward<AfterFrameFnT>(afterFrameFn)
 				);
 
-				if (mIterationsThisFrame <= 1)
+				if (mUpdatesThisFrame <= 1)
 				{
 					std::this_thread::yield();
 				}
@@ -98,8 +116,12 @@ namespace HAL
 		}
 
 	private:
-		std::chrono::time_point<std::chrono::steady_clock> mLastFrameTime;
-		int mIterationsThisFrame = 0;
+		// 140 FPS is the default frame rate cap
+		std::chrono::duration<long, std::ratio<1, 1000000>> mMinRenderFrameDuration = std::chrono::microseconds{ 7142 };
+
+		std::chrono::time_point<std::chrono::steady_clock> mLastRenderTime;
+		std::chrono::time_point<std::chrono::steady_clock> mLastFixedUpdateTime;
+		int mUpdatesThisFrame = 0;
 	};
 
 	template<typename ShouldStopFnT = std::nullptr_t, typename OnIterationFnT = std::nullptr_t, typename AfterFrameFnT = std::nullptr_t>
