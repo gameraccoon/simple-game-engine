@@ -2,9 +2,9 @@
 
 #include "EngineData/Input/InputBindingTypes.h"
 
-#include "EngineData/Input/PlayerControllerStates.h"
-
 #include <algorithm>
+
+#include "EngineData/Input/PlayerControllerStates.h"
 
 namespace Input
 {
