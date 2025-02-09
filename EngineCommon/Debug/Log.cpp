@@ -9,7 +9,7 @@
 Log::Log()
 {
 	const std::filesystem::path LOGS_DIR{ "./logs" };
-	const std::filesystem::path LOG_FILE = LOGS_DIR / "log.txt";
+	const char* LOG_EXTENSION = ".log.txt";
 
 	namespace fs = std::filesystem;
 	if (!fs::is_directory(LOGS_DIR) || !fs::exists(LOGS_DIR))
@@ -17,7 +17,11 @@ Log::Log()
 		fs::create_directory(LOGS_DIR);
 	}
 
-	mLogFileStream = std::ofstream(LOG_FILE);
+	const time_t in_time_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	std::stringstream ss;
+	ss << std::put_time(std::localtime(&in_time_t), "%y%m%d-%H%M%S");
+
+	mLogFileStream = std::ofstream(LOGS_DIR / (ss.str() + LOG_EXTENSION));
 	writeInfo("Log file created");
 }
 
