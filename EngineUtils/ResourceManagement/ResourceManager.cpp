@@ -10,6 +10,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "EngineCommon/EngineLogCategories.h"
+
 #ifdef CONCURRENT_ACCESS_DETECTION
 ConcurrentAccessDetector ResourceManager::gResourceManagerAccessDetector;
 #endif // CONCURRENT_ACCESS_DETECTION
@@ -110,11 +112,11 @@ void ResourceManager::loadAtlasesData(const RelativeResourcePath& listPath)
 	}
 	catch (const nlohmann::detail::exception& e)
 	{
-		LogError("Can't parse atlas list '%s': %s", listPath.getRelativePath().c_str(), e.what());
+		LogError(LOG_RESOURCE_LOADING, "Can't parse atlas list '%s': %s", listPath.getRelativePath().c_str(), e.what());
 	}
 	catch (const std::exception& e)
 	{
-		LogError("Can't open atlas list '%s': %s", listPath.getRelativePath().c_str(), e.what());
+		LogError(LOG_RESOURCE_LOADING, "Can't open atlas list '%s': %s", listPath.getRelativePath().c_str(), e.what());
 	}
 }
 
@@ -387,11 +389,11 @@ void ResourceManager::loadOneAtlasData(const AbsoluteResourcePath& path)
 	}
 	catch (const nlohmann::detail::exception& e)
 	{
-		LogError("Can't parse atlas data '%s': %s", path.getAbsolutePath().c_str(), e.what());
+		LogError(LOG_RESOURCE_LOADING, "Can't parse atlas data '%s': %s", path.getAbsolutePath().c_str(), e.what());
 	}
 	catch (const std::exception& e)
 	{
-		LogError("Can't open atlas data '%s': %s", path.getAbsolutePath().c_str(), e.what());
+		LogError(LOG_RESOURCE_LOADING, "Can't open atlas data '%s': %s", path.getAbsolutePath().c_str(), e.what());
 	}
 }
 

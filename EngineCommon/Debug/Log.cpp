@@ -6,6 +6,8 @@
 #include <iostream>
 #include <thread>
 
+#include "EngineCommon/EngineLogCategories.h"
+
 Log::Log()
 {
 	const std::filesystem::path LOGS_DIR{ "./logs" };
@@ -22,12 +24,12 @@ Log::Log()
 	ss << std::put_time(std::localtime(&in_time_t), "%y%m%d-%H%M%S");
 
 	mLogFileStream = std::ofstream(LOGS_DIR / (ss.str() + LOG_EXTENSION));
-	writeInfo("Log file created");
+	writeInfo(LOG_LOGGING, "Log file created");
 }
 
 Log::~Log()
 {
-	writeInfo("End of log");
+	writeInfo(LOG_LOGGING, "End of log");
 	mLogFileStream.close();
 }
 
@@ -37,27 +39,27 @@ Log& Log::Instance()
 	return log;
 }
 
-void Log::writeError(const std::string& text)
+void Log::writeError(const LogCategory category, const std::string& text)
 {
-	writeLine("[ERR]: ", text);
+	writeLine("[ERRR] ", category, text);
 }
 
-void Log::writeWarning(const std::string& text)
+void Log::writeWarning(const LogCategory category, const std::string& text)
 {
-	writeLine("[WARN]: ", text);
+	writeLine("[WARN] ", category, text);
 }
 
-void Log::writeInfo(const std::string& text)
+void Log::writeInfo(const LogCategory category, const std::string& text)
 {
-	writeLine("[INFO]: ", text);
+	writeLine("[INFO] ", category, text);
 }
 
-void Log::writeInit(const std::string& text)
+void Log::writeInit(const LogCategory category, const std::string& text)
 {
-	writeLine("[INIT]: ", text);
+	writeLine("[INIT] ", category, text);
 }
 
-void Log::writeLine(const char* logPrefix, const std::string& text)
+void Log::writeLine(const char* logPrefix, const LogCategory category, const std::string& text)
 {
 	if (mLogFileStream.is_open())
 	{
@@ -66,7 +68,7 @@ void Log::writeLine(const char* logPrefix, const std::string& text)
 
 		mLogWriteMutex.lock();
 		mLogFileStream << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X [") << std::this_thread::get_id() << "] ";
-		mLogFileStream << logPrefix << text << "\n"
+		mLogFileStream << logPrefix << "[" << category.name << "]: " << text << "\n"
 					   << std::flush;
 		mLogWriteMutex.unlock();
 	}

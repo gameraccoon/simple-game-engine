@@ -4,6 +4,7 @@
 #include <mutex>
 #include <string>
 
+#include "EngineCommon/Debug/LogCategory.h"
 #include "EngineCommon/Types/String/StringHelpers.h"
 
 /**
@@ -22,14 +23,14 @@ public:
 	static Log& Instance();
 
 	/* Logging functions */
-	void writeError(const std::string& text);
-	void writeWarning(const std::string& text);
-	void writeInfo(const std::string& text);
-	void writeInit(const std::string& text);
+	void writeError(LogCategory category, const std::string& text);
+	void writeWarning(LogCategory category, const std::string& text);
+	void writeInfo(LogCategory category, const std::string& text);
+	void writeInit(LogCategory category, const std::string& text);
 
 private:
 	/** Write line with timestamp */
-	void writeLine(const char* logPrefix, const std::string& text);
+	void writeLine(const char* logPrefix, LogCategory category, const std::string& text);
 
 	/** Filestream that holds the logfile handler */
 	std::ofstream mLogFileStream;
@@ -41,25 +42,25 @@ private:
 };
 
 template<typename... Args>
-void LogInit(const std::string& message, Args&&... args) noexcept
+void LogInit(const LogCategory category, const std::string& message, Args&&... args) noexcept
 {
-	Log::Instance().writeInit(FormatString(message, std::forward<Args>(args)...));
+	Log::Instance().writeInit(category, FormatString(message, std::forward<Args>(args)...));
 }
 
 template<typename... Args>
-void LogInfo(const std::string& message, Args&&... args) noexcept
+void LogInfo(const LogCategory category, const std::string& message, Args&&... args) noexcept
 {
-	Log::Instance().writeInfo(FormatString(message, std::forward<Args>(args)...));
+	Log::Instance().writeInfo(category, FormatString(message, std::forward<Args>(args)...));
 }
 
 template<typename... Args>
-void LogWarning(const std::string& message, Args&&... args) noexcept
+void LogWarning(const LogCategory category, const std::string& message, Args&&... args) noexcept
 {
-	Log::Instance().writeWarning(FormatString(message, std::forward<Args>(args)...));
+	Log::Instance().writeWarning(category, FormatString(message, std::forward<Args>(args)...));
 }
 
 template<typename... Args>
-void LogError(const std::string& message, Args&&... args) noexcept
+void LogError(const LogCategory category, const std::string& message, Args&&... args) noexcept
 {
-	Log::Instance().writeError(FormatString(message, std::forward<Args>(args)...));
+	Log::Instance().writeError(category, FormatString(message, std::forward<Args>(args)...));
 }

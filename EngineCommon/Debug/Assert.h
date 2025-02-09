@@ -3,6 +3,7 @@
 #include <string>
 
 #include "EngineCommon/Debug/Log.h"
+#include "EngineCommon/EngineLogCategories.h"
 #include "EngineCommon/Types/String/StringHelpers.h"
 
 using AssertHandlerFn = void (*)();
@@ -17,7 +18,7 @@ void LogAssertHelper(const char* condition, const char* file, size_t line, const
 {
 	if (gGlobalAllowAssertLogs)
 	{
-		Log::Instance().writeError(FormatString(std::string("Assertion failed '%s' %s:%d with message: '").append(message).append("'"), condition, file, line, std::forward<Args>(args)...));
+		Log::Instance().writeError(LOG_ASSERT, FormatString(std::string("Assertion failed '%s' %s:%d with message: '").append(message).append("'"), condition, file, line, std::forward<Args>(args)...));
 	}
 }
 

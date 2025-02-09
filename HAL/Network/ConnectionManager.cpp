@@ -115,7 +115,7 @@ namespace HAL
 				ReportError("Failed to listen on port %u", port);
 				return false;
 			}
-			LogInfo("Server listening on port %u", port);
+			LogInfo(LOG_NETWORK, "Server listening on port %u", port);
 			return true;
 		}
 
@@ -127,7 +127,7 @@ namespace HAL
 				return;
 			}
 
-			LogInfo("Closing connections...\n");
+			LogInfo(LOG_NETWORK, "Closing connections...\n");
 			for (const auto [client, connectionId] : mClients)
 			{
 				// we use "linger mode" to ask SteamNetworkingSockets to flush this out and close gracefully.
@@ -249,7 +249,7 @@ namespace HAL
 						debugLogActionStr = "closed by peer";
 					}
 
-					LogInfo("Connection %s %s, reason %d: %s\n", callbackInfo->m_info.m_szConnectionDescription, debugLogActionStr, callbackInfo->m_info.m_eEndReason, callbackInfo->m_info.m_szEndDebug);
+					LogInfo(LOG_NETWORK, "Connection %s %s, reason %d: %s\n", callbackInfo->m_info.m_szConnectionDescription, debugLogActionStr, callbackInfo->m_info.m_eEndReason, callbackInfo->m_info.m_szEndDebug);
 
 					mOnClientDisconnected(itClient->second);
 					mClientsByConnectionId.erase(itClient->second);
@@ -267,7 +267,7 @@ namespace HAL
 			case k_ESteamNetworkingConnectionState_Connecting: {
 				AssertFatal(!mClients.contains(callbackInfo->m_hConn), "We already have a connection with this ID");
 
-				LogInfo("Connection request from %s", callbackInfo->m_info.m_szConnectionDescription);
+				LogInfo(LOG_NETWORK, "Connection request from %s", callbackInfo->m_info.m_szConnectionDescription);
 
 				if (mSteamNetworkingSockets->AcceptConnection(callbackInfo->m_hConn) != k_EResultOK)
 				{
@@ -275,14 +275,14 @@ namespace HAL
 					// disconnected, the connection may already be half closed. Just
 					// destroy whatever we have on our side.
 					mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
-					LogInfo("Can't accept connection. (It was already closed?)");
+					LogInfo(LOG_NETWORK, "Can't accept connection. (It was already closed?)");
 					break;
 				}
 
 				if (!mSteamNetworkingSockets->SetConnectionPollGroup(callbackInfo->m_hConn, mPollGroup))
 				{
 					mSteamNetworkingSockets->CloseConnection(callbackInfo->m_hConn, 0, nullptr, false);
-					LogInfo("Failed to set poll group?");
+					LogInfo(LOG_NETWORK, "Failed to set poll group?");
 					break;
 				}
 
@@ -345,7 +345,7 @@ namespace HAL
 
 			char szAddr[SteamNetworkingIPAddr::k_cchMaxString];
 			serverAddr.ToString(szAddr, sizeof(szAddr), true);
-			LogInfo("Connecting to server address '%s'", szAddr);
+			LogInfo(LOG_NETWORK, "Connecting to server address '%s'", szAddr);
 			std::array<SteamNetworkingConfigValue_t, 2> opt;
 			opt[0].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)OnSteamNetConnectionStatusChangedStatic);
 			opt[1].SetInt64(k_ESteamNetworkingConfig_ConnectionUserData, mConnectionGlobalIdx);
@@ -416,16 +416,16 @@ namespace HAL
 				{
 					// Note: we could distinguish between a timeout, a rejected connection,
 					// or some other transport problem.
-					LogInfo("Could not connect to the remove host. (%s)", pInfo->m_info.m_szEndDebug);
+					LogInfo(LOG_NETWORK, "Could not connect to the remove host. (%s)", pInfo->m_info.m_szEndDebug);
 				}
 				else if (pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
 				{
-					LogInfo("Lost connection with the host. (%s)", pInfo->m_info.m_szEndDebug);
+					LogInfo(LOG_NETWORK, "Lost connection with the host. (%s)", pInfo->m_info.m_szEndDebug);
 				}
 				else
 				{
 					// NOTE: We could check the reason code for a normal disconnection
-					LogInfo("The host dropped the connection. (%s)", pInfo->m_info.m_szEndDebug);
+					LogInfo(LOG_NETWORK, "The host dropped the connection. (%s)", pInfo->m_info.m_szEndDebug);
 				}
 
 				mSteamNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
@@ -435,7 +435,7 @@ namespace HAL
 			}
 
 			case k_ESteamNetworkingConnectionState_Connected:
-				LogInfo("Connected to server OK");
+				LogInfo(LOG_NETWORK, "Connected to server OK");
 				break;
 
 			default:

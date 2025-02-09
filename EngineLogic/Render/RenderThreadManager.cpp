@@ -12,6 +12,7 @@
 #include <glm/matrix.hpp>
 #include <SDL.h>
 
+#include "EngineCommon/EngineLogCategories.h"
 #include "EngineCommon/Types/ComplexTypes/VectorUtils.h"
 
 #include "HAL/Base/Engine.h"
@@ -281,7 +282,7 @@ namespace RenderThreadManagerInternal
 			const InstanceFrames& frames = dataToRender[i];
 			if (frames.size() > 2)
 			{
-				LogWarning("Render frame skipped. Count: %d Game instance: %u", frames.size() - 2, i);
+				LogWarning(LOG_RENDERING, "Render frame skipped. Count: %d Game instance: %u", frames.size() - 2, i);
 			}
 		}
 #endif
