@@ -32,13 +32,13 @@ namespace HAL
 				break;
 			case k_ESteamNetworkingSocketsDebugOutputType_Important:
 			case k_ESteamNetworkingSocketsDebugOutputType_Warning:
-				LogWarning(message);
+				LogWarning(LOG_NETWORK, message);
 				break;
 			case k_ESteamNetworkingSocketsDebugOutputType_Msg:
 			case k_ESteamNetworkingSocketsDebugOutputType_Verbose:
 			case k_ESteamNetworkingSocketsDebugOutputType_Debug:
 			case k_ESteamNetworkingSocketsDebugOutputType_Everything:
-				LogInfo(message);
+				LogInfo(LOG_NETWORK, message);
 				break;
 			default:
 				break;
