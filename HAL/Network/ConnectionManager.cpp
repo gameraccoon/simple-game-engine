@@ -14,6 +14,8 @@
 #include <steam/isteamnetworkingutils.h>
 #include <steam/steamnetworkingsockets.h>
 
+#include "EngineCommon/EngineLogCategories.h"
+
 namespace HAL
 {
 	namespace ConnectionManagerInternal
