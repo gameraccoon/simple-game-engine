@@ -15,7 +15,7 @@ namespace HAL
 	class ConnectionManager
 	{
 	public:
-		enum UseNagle
+		enum class UseNagle
 		{
 			// leave it as Yes, unless you have a very good reason to bypass the Nagle's algorithm
 			Yes,
