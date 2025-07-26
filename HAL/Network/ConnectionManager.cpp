@@ -975,6 +975,7 @@ namespace HAL
 	{
 		// only delay is supported for now
 		StaticImpl().fakeNetworkManager->setDebugDelayMilliseconds(debugBehavior.packetLagMs_Recv + debugBehavior.packetLagMs_Send);
+		StaticImpl().fakeNetworkManager->setPretendConnected(debugBehavior.pretendConnected);
 	}
 
 	u64 ConnectionManager::GetTimestampNow()

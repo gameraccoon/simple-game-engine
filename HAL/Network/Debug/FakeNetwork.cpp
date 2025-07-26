@@ -34,6 +34,7 @@ namespace HAL
 		static inline ConnectionId nextConnectionId = 0;
 		static inline std::optional<std::chrono::system_clock::time_point> fakeTime;
 		static inline std::mutex dataMutex;
+		static inline bool pretendConnected = false;
 
 		static inline std::unordered_map<ConnectionId, std::vector<DelayedMessage>> messagesOnTheWay;
 		static inline std::chrono::system_clock::duration messageDelay = std::chrono::milliseconds(0);
@@ -54,6 +55,16 @@ namespace HAL
 
 		ConnectionId addServerConnectionAndReturnClientConnectionId(u16 port)
 		{
+			if (pretendConnected)
+			{
+				const ConnectionId clientConnection = nextConnectionId++;
+				const ConnectionId serverConnection = nextConnectionId++;
+
+				openConnections.emplace(clientConnection, serverConnection);
+				portByClientConnection.emplace(clientConnection, port);
+				return clientConnection;
+			}
+
 			if (const auto it = openPorts.find(port); it != openPorts.end())
 			{
 				const ConnectionId clientConnection = nextConnectionId++;
@@ -70,6 +81,11 @@ namespace HAL
 
 		void scheduleMessage(const ConnectionId connectionId, const Network::Message& message)
 		{
+			if (pretendConnected)
+			{
+				return;
+			}
+
 			std::vector<DelayedMessage>& delayedMessages = messagesOnTheWay[connectionId];
 			std::chrono::system_clock::time_point deliveryTime = getTime() + messageDelay;
 			const auto it = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), deliveryTime, [](const std::chrono::system_clock::time_point deliveryTime, const DelayedMessage& message) {
@@ -95,6 +111,11 @@ namespace HAL
 
 		void receiveScheduledMessages(ConnectionId receivingConnectionId)
 		{
+			if (pretendConnected)
+			{
+				return;
+			}
+
 			const auto connectionIt = openConnections.find(receivingConnectionId);
 			if (connectionIt == openConnections.end())
 			{
@@ -304,6 +325,11 @@ namespace HAL
 	{
 		using namespace std::chrono_literals;
 		mPimpl->fakeTime = mPimpl->getTime() + milliseconds * 1ms;
+	}
+
+	void FakeNetworkManager::setPretendConnected(const bool pretendConnected)
+	{
+		mPimpl->pretendConnected = pretendConnected;
 	}
 } // namespace HAL
 

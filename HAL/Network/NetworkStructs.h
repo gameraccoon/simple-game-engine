@@ -96,6 +96,10 @@ namespace HAL
 			int rateLimitBps_Recv = 0; // bytes per second
 			int rateLimitOneBurstBytes_Send = 16 * 1024;
 			int rateLimitOneBurstBytes_Recv = 16 * 1024;
+
+			// only for fake network, assume that the client is always connected to the server
+			// used for replaying the network
+			bool pretendConnected = false;
 		};
 	} // namespace Network
 } // namespace HAL

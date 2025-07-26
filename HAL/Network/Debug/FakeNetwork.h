@@ -90,6 +90,8 @@ namespace HAL
 		void setDebugDelayMilliseconds(int milliseconds);
 		void debugAdvanceTimeMilliseconds(int milliseconds);
 
+		void setPretendConnected(bool pretendConnected);
+
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> mPimpl;
