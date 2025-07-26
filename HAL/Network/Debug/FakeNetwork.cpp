@@ -54,7 +54,7 @@ namespace HAL
 
 		ConnectionId addServerConnectionAndReturnClientConnectionId(u16 port)
 		{
-			if (auto it = openPorts.find(port); it != openPorts.end())
+			if (const auto it = openPorts.find(port); it != openPorts.end())
 			{
 				const ConnectionId clientConnection = nextConnectionId++;
 				const ConnectionId serverConnection = nextConnectionId++;
@@ -68,20 +68,20 @@ namespace HAL
 			return InvalidConnectionId;
 		}
 
-		void scheduleMessage(ConnectionId connectionId, const Network::Message& message)
+		void scheduleMessage(const ConnectionId connectionId, const Network::Message& message)
 		{
 			std::vector<DelayedMessage>& delayedMessages = messagesOnTheWay[connectionId];
 			std::chrono::system_clock::time_point deliveryTime = getTime() + messageDelay;
-			auto it = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), deliveryTime, [](std::chrono::system_clock::time_point deliveryTime, const DelayedMessage& message) {
+			const auto it = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), deliveryTime, [](const std::chrono::system_clock::time_point deliveryTime, const DelayedMessage& message) {
 				return deliveryTime < message.deliveryTime;
 			});
 
 			delayedMessages.emplace(it, std::move(message), deliveryTime);
 		}
 
-		ReceivedMessagesVector& GetMessageVectorRefFromSenderConnectionId(ConnectionId sendingSideConnectionId)
+		ReceivedMessagesVector& GetMessageVectorRefFromSenderConnectionId(const ConnectionId sendingSideConnectionId)
 		{
-			if (auto portIt = portByClientConnection.find(sendingSideConnectionId); portIt != portByClientConnection.end())
+			if (const auto portIt = portByClientConnection.find(sendingSideConnectionId); portIt != portByClientConnection.end())
 			{
 				// client-to-server
 				return openPorts[portIt->second]->receivedMessages;
@@ -106,7 +106,7 @@ namespace HAL
 
 			std::vector<DelayedMessage>& delayedMessages = messagesOnTheWay[sendingSideConnectionId];
 			const std::chrono::system_clock::time_point timeNow = getTime();
-			auto receivedMessagesEnd = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), timeNow, [](std::chrono::system_clock::time_point timeNow, const DelayedMessage& message) {
+			const auto receivedMessagesEnd = std::upper_bound(delayedMessages.begin(), delayedMessages.end(), timeNow, [](const std::chrono::system_clock::time_point timeNow, const DelayedMessage& message) {
 				return timeNow < message.deliveryTime;
 			});
 
@@ -138,26 +138,26 @@ namespace HAL
 	FakeNetworkManager::OpenPortResult FakeNetworkManager::startListeningToPort(u16 port)
 	{
 		std::lock_guard l(mPimpl->dataMutex);
-		if (mPimpl->openPorts.find(port) != mPimpl->openPorts.end())
+		if (mPimpl->openPorts.contains(port))
 		{
-			return FakeNetworkManager::OpenPortResult{ FakeNetworkManager::OpenPortResult::Status::AlreadyOpened };
+			return OpenPortResult{ OpenPortResult::Status::AlreadyOpened };
 		}
 
 		mPimpl->openPorts.emplace(port, std::make_unique<Impl::OpenPortData>());
 
-		return FakeNetworkManager::OpenPortResult{ FakeNetworkManager::OpenPortResult::Status::Success };
+		return OpenPortResult{ OpenPortResult::Status::Success };
 	}
 
-	bool FakeNetworkManager::isPortOpen(u16 port) const
+	bool FakeNetworkManager::isPortOpen(const u16 port) const
 	{
 		std::lock_guard l(mPimpl->dataMutex);
 		return mPimpl->openPorts.contains(port);
 	}
 
-	void FakeNetworkManager::stopListeningToPort(u16 port)
+	void FakeNetworkManager::stopListeningToPort(const u16 port)
 	{
 		std::lock_guard l(mPimpl->dataMutex);
-		auto portDataIt = mPimpl->openPorts.find(port);
+		const auto portDataIt = mPimpl->openPorts.find(port);
 		if (portDataIt == mPimpl->openPorts.end())
 		{
 			// the port already closed
@@ -183,7 +183,7 @@ namespace HAL
 		if (!address.isLocalhost())
 		{
 			ReportFatalError("Real network connections are not supported in FAKE_NETWORK mode, use 127.0.0.1 to simulate local connection");
-			return FakeNetworkManager::ConnectResult{ FakeNetworkManager::ConnectResult::Status::Failure, InvalidConnectionId };
+			return ConnectResult{ ConnectResult::Status::Failure, InvalidConnectionId };
 		}
 
 		const u16 port = address.getPort();
@@ -192,22 +192,22 @@ namespace HAL
 
 		if (clientConnectionId != InvalidConnectionId)
 		{
-			return FakeNetworkManager::ConnectResult{ FakeNetworkManager::ConnectResult::Status::Success, clientConnectionId };
+			return ConnectResult{ ConnectResult::Status::Success, clientConnectionId };
 		}
 
-		return FakeNetworkManager::ConnectResult{ FakeNetworkManager::ConnectResult::Status::Failure, InvalidConnectionId };
+		return ConnectResult{ ConnectResult::Status::Failure, InvalidConnectionId };
 	}
 
-	bool FakeNetworkManager::isConnectionOpen(ConnectionId connection) const
+	bool FakeNetworkManager::isConnectionOpen(const ConnectionId connection) const
 	{
 		std::lock_guard l(mPimpl->dataMutex);
 		return mPimpl->openConnections.contains(connection);
 	}
 
-	void FakeNetworkManager::dropConnection(ConnectionId connection)
+	void FakeNetworkManager::dropConnection(const ConnectionId connection)
 	{
 		std::lock_guard l(mPimpl->dataMutex);
-		if (auto connectionPairIt = mPimpl->openConnections.find(connection); connectionPairIt != mPimpl->openConnections.end())
+		if (const auto connectionPairIt = mPimpl->openConnections.find(connection); connectionPairIt != mPimpl->openConnections.end())
 		{
 			ConnectionId clientSideConnectionId = InvalidConnectionId;
 			ConnectionId serverSideConnectionId = InvalidConnectionId;
@@ -242,7 +242,7 @@ namespace HAL
 			mPimpl->openConnections.erase(serverSideConnectionId);
 			mPimpl->portByClientConnection.erase(clientSideConnectionId);
 
-			if (auto portDataIt = mPimpl->openPorts.find(serverPort); portDataIt != mPimpl->openPorts.end())
+			if (const auto portDataIt = mPimpl->openPorts.find(serverPort); portDataIt != mPimpl->openPorts.end())
 			{
 				Impl::removeMessagesForConnection(portDataIt->second->receivedMessages, serverSideConnectionId);
 				portDataIt->second->openConnections.erase(serverSideConnectionId);
@@ -251,31 +251,31 @@ namespace HAL
 		}
 	}
 
-	FakeNetworkManager::SendMessageResult FakeNetworkManager::sendMessage(ConnectionId connectionId, const Network::Message& message, MessageReliability reliability)
+	FakeNetworkManager::SendMessageResult FakeNetworkManager::sendMessage(const ConnectionId connectionId, const Network::Message& message, const MessageReliability reliability)
 	{
 		std::lock_guard l(mPimpl->dataMutex);
 
 		if (reliability == MessageReliability::Unreliable || reliability == MessageReliability::UnreliableAllowSkip)
 		{
-			constexpr const int messageLossPercentage = 0;
+			constexpr int messageLossPercentage = 0;
 			if (std::rand() % 100 < messageLossPercentage)
 			{
 				// imitate sending and loosing
-				return FakeNetworkManager::SendMessageResult{ FakeNetworkManager::SendMessageResult::Status::Success };
+				return SendMessageResult{ SendMessageResult::Status::Success };
 			}
 		}
 
 		mPimpl->scheduleMessage(connectionId, std::move(message));
-		return FakeNetworkManager::SendMessageResult{ FakeNetworkManager::SendMessageResult::Status::Success };
+		return SendMessageResult{ SendMessageResult::Status::Success };
 	}
 
-	std::vector<std::pair<ConnectionId, Network::Message>> FakeNetworkManager::consumeReceivedMessages(u16 port)
+	std::vector<std::pair<ConnectionId, Network::Message>> FakeNetworkManager::consumeReceivedMessages(const u16 port)
 	{
 		std::lock_guard l(mPimpl->dataMutex);
-		if (auto it = mPimpl->openPorts.find(port); it != mPimpl->openPorts.end())
+		if (const auto it = mPimpl->openPorts.find(port); it != mPimpl->openPorts.end())
 		{
 			// this is not effecient at all, but this is debug code
-			for (ConnectionId connectionId : it->second->openConnections)
+			for (const ConnectionId connectionId : it->second->openConnections)
 			{
 				mPimpl->receiveScheduledMessages(connectionId);
 			}
@@ -286,7 +286,7 @@ namespace HAL
 		return {};
 	}
 
-	std::vector<std::pair<ConnectionId, Network::Message>> FakeNetworkManager::consumeReceivedClientMessages(ConnectionId connectionId)
+	std::vector<std::pair<ConnectionId, Network::Message>> FakeNetworkManager::consumeReceivedClientMessages(const ConnectionId connectionId)
 	{
 		std::lock_guard l(mPimpl->dataMutex);
 		mPimpl->receiveScheduledMessages(connectionId);
@@ -294,13 +294,13 @@ namespace HAL
 		return std::move(mPimpl->receivedClientMessages);
 	}
 
-	void FakeNetworkManager::setDebugDelayMilliseconds(int milliseconds)
+	void FakeNetworkManager::setDebugDelayMilliseconds(const int milliseconds)
 	{
 		using namespace std::chrono_literals;
 		mPimpl->messageDelay = milliseconds * 1ms;
 	}
 
-	void FakeNetworkManager::debugAdvanceTimeMilliseconds(int milliseconds)
+	void FakeNetworkManager::debugAdvanceTimeMilliseconds(const int milliseconds)
 	{
 		using namespace std::chrono_literals;
 		mPimpl->fakeTime = mPimpl->getTime() + milliseconds * 1ms;

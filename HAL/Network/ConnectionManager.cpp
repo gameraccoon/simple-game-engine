@@ -20,7 +20,7 @@ namespace HAL
 {
 	namespace ConnectionManagerInternal
 	{
-		static void DebugOutput(ESteamNetworkingSocketsDebugOutputType type, const char* message)
+		static void DebugOutput(const ESteamNetworkingSocketsDebugOutputType type, const char* message)
 		{
 			switch (type)
 			{
@@ -147,7 +147,7 @@ namespace HAL
 			mPollGroup = k_HSteamNetPollGroup_Invalid;
 		}
 
-		ConnectionManager::SendMessageResult sendMessage(ConnectionId connectionId, const Network::Message& message, ConnectionManager::MessageReliability reliability, bool noNagle)
+		ConnectionManager::SendMessageResult sendMessage(const ConnectionId connectionId, const Network::Message& message, const ConnectionManager::MessageReliability reliability, const bool noNagle)
 		{
 			const auto clientIt = mClientsByConnectionId.find(connectionId);
 			if (clientIt == mClientsByConnectionId.end())
@@ -159,7 +159,7 @@ namespace HAL
 			return ConnectionManagerInternal::SendMessage(clientIt->second, message, reliability, noNagle);
 		}
 
-		void broadcastMessage(const Network::Message& message, ConnectionId except, ConnectionManager::MessageReliability reliability, bool noNagle)
+		void broadcastMessage(const Network::Message& message, const ConnectionId except, const ConnectionManager::MessageReliability reliability, const bool noNagle)
 		{
 			for (auto [connection, connectionId] : mClients)
 			{
@@ -185,7 +185,7 @@ namespace HAL
 			ISteamNetworkingMessage* incomingMessages[MAX_MSGS_PER_FETCH];
 			for (int tryI = 0; tryI < FETCH_TRIES; ++tryI)
 			{
-				int numMsgs = mSteamNetworkingSockets->ReceiveMessagesOnPollGroup(mPollGroup, incomingMessages, MAX_MSGS_PER_FETCH);
+				const int numMsgs = mSteamNetworkingSockets->ReceiveMessagesOnPollGroup(mPollGroup, incomingMessages, MAX_MSGS_PER_FETCH);
 				if (numMsgs == 0)
 				{
 					break;
@@ -212,7 +212,7 @@ namespace HAL
 			}
 		}
 
-		void disconnectClient(ConnectionId connectionId)
+		void disconnectClient(const ConnectionId connectionId)
 		{
 			const auto clientIt = mClientsByConnectionId.find(connectionId);
 			if (clientIt == mClientsByConnectionId.end())
@@ -237,7 +237,7 @@ namespace HAL
 			case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
 				if (callbackInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connected)
 				{
-					auto itClient = mClients.find(callbackInfo->m_hConn);
+					const auto itClient = mClients.find(callbackInfo->m_hConn);
 					AssertFatal(itClient != mClients.end(), "The client should already exist if we were connected to it");
 
 					const char* debugLogActionStr;
@@ -301,7 +301,7 @@ namespace HAL
 
 		static void OnSteamNetConnectionStatusChangedStatic(SteamNetConnectionStatusChangedCallback_t* callbackInfo)
 		{
-			if (auto portIt = Ports.find(callbackInfo->m_info.m_nUserData); portIt != Ports.end())
+			if (const auto portIt = Ports.find(callbackInfo->m_info.m_nUserData); portIt != Ports.end())
 			{
 				portIt->second->onSteamNetConnectionStatusChanged(callbackInfo);
 			}
@@ -325,7 +325,7 @@ namespace HAL
 	{
 	public:
 		template<typename Fn1>
-		ClientNetworkConnection(ConnectionId connectionId, Fn1&& onDisconnected)
+		ClientNetworkConnection(const ConnectionId connectionId, Fn1&& onDisconnected)
 			: mConnectionGlobalIdx(ConnectionNextIdx++)
 			, mConnectionId(connectionId)
 			, mOnDisconnected(std::forward<Fn1>(onDisconnected))
@@ -367,7 +367,7 @@ namespace HAL
 			mOnDisconnected(mConnectionId);
 		}
 
-		ConnectionManager::SendMessageResult sendMessage(const Network::Message& message, ConnectionManager::MessageReliability reliability, bool noNagle)
+		ConnectionManager::SendMessageResult sendMessage(const Network::Message& message, const ConnectionManager::MessageReliability reliability, const bool noNagle)
 		{
 			return ConnectionManagerInternal::SendMessage(mConnection, message, reliability, noNagle);
 		}
@@ -379,8 +379,8 @@ namespace HAL
 
 		void pollIncomingMessages(std::vector<std::pair<ConnectionId, Network::Message>>& inOutMessages)
 		{
-			const int FETCH_TRIES = 20;
-			const int MAX_MSGS_PER_FETCH = 50;
+			constexpr int FETCH_TRIES = 20;
+			constexpr int MAX_MSGS_PER_FETCH = 50;
 			ISteamNetworkingMessage* incomingMessages[MAX_MSGS_PER_FETCH];
 			for (int tryI = 0; tryI < FETCH_TRIES; ++tryI)
 			{
@@ -447,7 +447,7 @@ namespace HAL
 
 		static void OnSteamNetConnectionStatusChangedStatic(SteamNetConnectionStatusChangedCallback_t* callbackInfo)
 		{
-			if (auto connectionIt = Connections.find(callbackInfo->m_info.m_nUserData); connectionIt != Connections.end())
+			if (const auto connectionIt = Connections.find(callbackInfo->m_info.m_nUserData); connectionIt != Connections.end())
 			{
 				connectionIt->second->onSteamNetConnectionStatusChanged(callbackInfo);
 			}
@@ -493,13 +493,13 @@ namespace HAL
 		{
 			ConnectionId newConnectionId = nextConnectionId++;
 
-			auto onDisconnected = [this](ConnectionId connectionId) {
+			auto onDisconnected = [this](const ConnectionId connectionId) {
 				clientServerConnections.erase(connectionId);
 			};
 
 			std::unique_ptr<ClientNetworkConnection> newConnection = std::make_unique<ClientNetworkConnection>(newConnectionId, std::move(onDisconnected));
 
-			bool isSuccessfulTry = newConnection->connect(serverAddr);
+			const bool isSuccessfulTry = newConnection->connect(serverAddr);
 
 			if (!isSuccessfulTry)
 			{
@@ -515,8 +515,8 @@ namespace HAL
 		{
 			while (!clientServerConnections.empty())
 			{
-				auto connectionIt = clientServerConnections.begin();
-				std::unique_ptr<ClientNetworkConnection> connectionToRemove = std::move(connectionIt->second);
+				const auto connectionIt = clientServerConnections.begin();
+				const std::unique_ptr<ClientNetworkConnection> connectionToRemove = std::move(connectionIt->second);
 				clientServerConnections.erase(connectionIt);
 				connectionToRemove->disconnect();
 			}
@@ -548,7 +548,7 @@ namespace HAL
 			return newConnectionId;
 		};
 
-		auto onClientDisconnected = [](ConnectionId connectionId) {
+		auto onClientDisconnected = [](const ConnectionId connectionId) {
 			StaticImpl().serverClientConnections.erase(connectionId);
 		};
 
@@ -571,21 +571,21 @@ namespace HAL
 		return { ConnectionManager::OpenPortResult::Status::Success };
 	}
 
-	bool ConnectionManager::isPortOpen(u16 port) const
+	bool ConnectionManager::isPortOpen(const u16 port) const
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
 		return StaticImpl().openPorts.contains(port);
 	}
 
-	bool ConnectionManager::isClientConnected(ConnectionId connectionId) const
+	bool ConnectionManager::isClientConnected(const ConnectionId connectionId) const
 	{
 		return StaticImpl().serverClientConnections.contains(connectionId);
 	}
 
-	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToClient(ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle useNagle)
+	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToClient(const ConnectionId connectionId, const Network::Message& message, const MessageReliability reliability, const UseNagle useNagle)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
-		auto it = StaticImpl().serverClientConnections.find(connectionId);
+		const auto it = StaticImpl().serverClientConnections.find(connectionId);
 		if (it == StaticImpl().serverClientConnections.end())
 		{
 			return { SendMessageResult::Status::ConnectionClosed };
@@ -594,11 +594,11 @@ namespace HAL
 		return it->second->sendMessage(connectionId, message, reliability, (useNagle == UseNagle::No));
 	}
 
-	void ConnectionManager::broadcastMessageToClients(u16 port, const Network::Message& message, ConnectionId except, MessageReliability reliability, UseNagle useNagle)
+	void ConnectionManager::broadcastMessageToClients(const u16 port, const Network::Message& message, const ConnectionId except, const MessageReliability reliability, const UseNagle useNagle)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
 
-		auto it = StaticImpl().openPorts.find(port);
+		const auto it = StaticImpl().openPorts.find(port);
 		if (it == StaticImpl().openPorts.end())
 		{
 			return;
@@ -607,40 +607,40 @@ namespace HAL
 		it->second->broadcastMessage(message, except, reliability, (useNagle == UseNagle::No));
 	}
 
-	void ConnectionManager::flushMessagesForAllClientConnections(u16 port)
+	void ConnectionManager::flushMessagesForAllClientConnections(const u16 port)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
-		if (auto it = StaticImpl().openPorts.find(port); it != StaticImpl().openPorts.end())
+		if (const auto it = StaticImpl().openPorts.find(port); it != StaticImpl().openPorts.end())
 		{
 			it->second->flushAllMessages();
 		}
 	}
 
-	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedServerMessages(u16 port)
+	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedServerMessages(const u16 port)
 	{
 		std::vector<std::pair<ConnectionId, Network::Message>> result;
 		std::lock_guard l(StaticImpl().dataMutex);
-		if (auto it = StaticImpl().openPorts.find(port); it != StaticImpl().openPorts.end())
+		if (const auto it = StaticImpl().openPorts.find(port); it != StaticImpl().openPorts.end())
 		{
 			it->second->pollIncomingMessages(result);
 		}
 		return result;
 	}
 
-	void ConnectionManager::disconnectClient(ConnectionId connectionId)
+	void ConnectionManager::disconnectClient(const ConnectionId connectionId)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
-		if (auto connIt = StaticImpl().serverClientConnections.find(connectionId); connIt != StaticImpl().serverClientConnections.end())
+		if (const auto connIt = StaticImpl().serverClientConnections.find(connectionId); connIt != StaticImpl().serverClientConnections.end())
 		{
 			// connIt will be invalidated during this call
 			connIt->second->disconnectClient(connectionId);
 		}
 	}
 
-	void ConnectionManager::stopListeningToPort(u16 port)
+	void ConnectionManager::stopListeningToPort(const u16 port)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
-		auto portDataIt = StaticImpl().openPorts.find(port);
+		const auto portDataIt = StaticImpl().openPorts.find(port);
 		if (portDataIt == StaticImpl().openPorts.end())
 		{
 			// the port already closed
@@ -671,16 +671,16 @@ namespace HAL
 		return connectionResult;
 	}
 
-	bool ConnectionManager::isServerConnectionOpen(ConnectionId connectionId) const
+	bool ConnectionManager::isServerConnectionOpen(const ConnectionId connectionId) const
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
 		return StaticImpl().clientServerConnections.contains(connectionId);
 	}
 
-	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToServer(ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle useNagle)
+	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToServer(const ConnectionId connectionId, const Network::Message& message, const MessageReliability reliability, const UseNagle useNagle)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
-		auto it = StaticImpl().clientServerConnections.find(connectionId);
+		const auto it = StaticImpl().clientServerConnections.find(connectionId);
 		if (it == StaticImpl().clientServerConnections.end())
 		{
 			return { SendMessageResult::Status::ConnectionClosed };
@@ -689,33 +689,33 @@ namespace HAL
 		return it->second->sendMessage(message, reliability, (useNagle == UseNagle::No));
 	}
 
-	void ConnectionManager::flushMessagesForServerConnection(ConnectionId connectionId)
+	void ConnectionManager::flushMessagesForServerConnection(const ConnectionId connectionId)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
-		if (auto it = StaticImpl().clientServerConnections.find(connectionId); it != StaticImpl().clientServerConnections.end())
+		if (const auto it = StaticImpl().clientServerConnections.find(connectionId); it != StaticImpl().clientServerConnections.end())
 		{
 			it->second->flushAllMessages();
 		}
 	}
 
-	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedClientMessages(ConnectionId connectionId)
+	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedClientMessages(const ConnectionId connectionId)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
 		std::vector<std::pair<ConnectionId, Network::Message>> result;
-		if (auto connectionPairIt = StaticImpl().clientServerConnections.find(connectionId); connectionPairIt != StaticImpl().clientServerConnections.end())
+		if (const auto connectionPairIt = StaticImpl().clientServerConnections.find(connectionId); connectionPairIt != StaticImpl().clientServerConnections.end())
 		{
 			connectionPairIt->second->pollIncomingMessages(result);
 		}
 		return result;
 	}
 
-	void ConnectionManager::dropServerConnection(ConnectionId connectionId)
+	void ConnectionManager::dropServerConnection(const ConnectionId connectionId)
 	{
 		std::lock_guard l(StaticImpl().dataMutex);
-		if (auto connectionIt = StaticImpl().clientServerConnections.find(connectionId); connectionIt != StaticImpl().clientServerConnections.end())
+		if (const auto connectionIt = StaticImpl().clientServerConnections.find(connectionId); connectionIt != StaticImpl().clientServerConnections.end())
 		{
 			// extend the lifetime of the connection to destroy it properly
-			std::unique_ptr<ClientNetworkConnection> connectionToRemove = std::move(connectionIt->second);
+			const std::unique_ptr<ClientNetworkConnection> connectionToRemove = std::move(connectionIt->second);
 			StaticImpl().clientServerConnections.erase(connectionIt);
 			connectionToRemove->disconnect();
 		}
@@ -732,15 +732,15 @@ namespace HAL
 	void ConnectionManager::closeConnectionsOpenFromThisManager()
 	{
 		// copy to avoid iterator invalidation
-		auto connections = mOpenedServerConnections;
-		for (ConnectionId connection : connections)
+		const auto connections = mOpenedServerConnections;
+		for (const ConnectionId connection : connections)
 		{
 			dropServerConnection(connection);
 		}
 
 		// copy to avoid iterator invalidation
-		auto ports = mOpenedPorts;
-		for (u16 port : ports)
+		const auto ports = mOpenedPorts;
+		for (const u16 port : ports)
 		{
 			stopListeningToPort(port);
 		}
@@ -810,41 +810,41 @@ namespace HAL
 	ConnectionManager::ConnectionManager() = default;
 	ConnectionManager::~ConnectionManager() = default;
 
-	ConnectionManager::OpenPortResult ConnectionManager::startListeningToPort(u16 port)
+	ConnectionManager::OpenPortResult ConnectionManager::startListeningToPort(const u16 port)
 	{
 		const FakeNetworkManager::OpenPortResult result = StaticImpl().fakeNetworkManager->startListeningToPort(port);
 
 		switch (result.status)
 		{
 		case FakeNetworkManager::OpenPortResult::Status::Success:
-			return { ConnectionManager::OpenPortResult::Status::Success };
+			return { OpenPortResult::Status::Success };
 		case FakeNetworkManager::OpenPortResult::Status::AlreadyOpened:
-			return { ConnectionManager::OpenPortResult::Status::AlreadyOpened };
+			return { OpenPortResult::Status::AlreadyOpened };
 		default:
-			return { ConnectionManager::OpenPortResult::Status::UnknownFailure };
+			return { OpenPortResult::Status::UnknownFailure };
 		}
 	}
 
-	bool ConnectionManager::isPortOpen(u16 port) const
+	bool ConnectionManager::isPortOpen(const u16 port) const
 	{
 		return StaticImpl().fakeNetworkManager->isPortOpen(port);
 	}
 
-	bool ConnectionManager::isClientConnected(ConnectionId connectionId) const
+	bool ConnectionManager::isClientConnected(const ConnectionId connectionId) const
 	{
 		return StaticImpl().fakeNetworkManager->isConnectionOpen(connectionId);
 	}
 
-	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToClient(ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle /*useNagle*/)
+	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToClient(const ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle /*useNagle*/)
 	{
 		const FakeNetworkManager::MessageReliability fakeReliability = [reliability]() {
 			switch (reliability)
 			{
-			case ConnectionManager::MessageReliability::Reliable:
+			case MessageReliability::Reliable:
 				return FakeNetworkManager::MessageReliability::Reliable;
-			case ConnectionManager::MessageReliability::Unreliable:
+			case MessageReliability::Unreliable:
 				return FakeNetworkManager::MessageReliability::Unreliable;
-			case ConnectionManager::MessageReliability::UnreliableAllowSkip:
+			case MessageReliability::UnreliableAllowSkip:
 				return FakeNetworkManager::MessageReliability::UnreliableAllowSkip;
 			default:
 				ReportFatalError("Unsupported message reliability %u:", static_cast<unsigned int>(reliability));
@@ -857,11 +857,11 @@ namespace HAL
 		switch (result.status)
 		{
 		case FakeNetworkManager::SendMessageResult::Status::Success:
-			return { ConnectionManager::SendMessageResult::Status::Success };
+			return { SendMessageResult::Status::Success };
 		case FakeNetworkManager::SendMessageResult::Status::ConnectionClosed:
-			return { ConnectionManager::SendMessageResult::Status::ConnectionClosed };
+			return { SendMessageResult::Status::ConnectionClosed };
 		default:
-			return { ConnectionManager::SendMessageResult::Status::UnknownFailure };
+			return { SendMessageResult::Status::UnknownFailure };
 		}
 	}
 
@@ -875,7 +875,7 @@ namespace HAL
 		// we don't need to do anything here
 	}
 
-	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedServerMessages(u16 port)
+	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedServerMessages(const u16 port)
 	{
 		return StaticImpl().fakeNetworkManager->consumeReceivedMessages(port);
 	}
@@ -885,7 +885,7 @@ namespace HAL
 		ReportFatalError("Not implemented");
 	}
 
-	void ConnectionManager::stopListeningToPort(u16 port)
+	void ConnectionManager::stopListeningToPort(const u16 port)
 	{
 		StaticImpl().fakeNetworkManager->stopListeningToPort(port);
 	}
@@ -897,30 +897,30 @@ namespace HAL
 		switch (result.status)
 		{
 		case FakeNetworkManager::ConnectResult::Status::Success:
-			return { ConnectionManager::ConnectResult::Status::Success, result.connectionId };
+			return { ConnectResult::Status::Success, result.connectionId };
 		case FakeNetworkManager::ConnectResult::Status::Failure:
-			return { ConnectionManager::ConnectResult::Status::Failure, InvalidConnectionId };
+			return { ConnectResult::Status::Failure, InvalidConnectionId };
 		}
 
 		ReportFatalError("Unknown connection status");
-		return { ConnectionManager::ConnectResult::Status::Failure, InvalidConnectionId };
+		return { ConnectResult::Status::Failure, InvalidConnectionId };
 	}
 
-	bool ConnectionManager::isServerConnectionOpen(ConnectionId connectionId) const
+	bool ConnectionManager::isServerConnectionOpen(const ConnectionId connectionId) const
 	{
 		return StaticImpl().fakeNetworkManager->isConnectionOpen(connectionId);
 	}
 
-	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToServer(ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle /*useNagle*/)
+	ConnectionManager::SendMessageResult ConnectionManager::sendMessageToServer(const ConnectionId connectionId, const Network::Message& message, MessageReliability reliability, UseNagle /*useNagle*/)
 	{
 		const auto actualReliability = [reliability]() {
 			switch (reliability)
 			{
-			case ConnectionManager::MessageReliability::Reliable:
+			case MessageReliability::Reliable:
 				return FakeNetworkManager::MessageReliability::Reliable;
-			case ConnectionManager::MessageReliability::Unreliable:
+			case MessageReliability::Unreliable:
 				return FakeNetworkManager::MessageReliability::Unreliable;
-			case ConnectionManager::MessageReliability::UnreliableAllowSkip:
+			case MessageReliability::UnreliableAllowSkip:
 				return FakeNetworkManager::MessageReliability::UnreliableAllowSkip;
 			default:
 				ReportFatalError("Unsupported message reliability %u:", static_cast<unsigned int>(reliability));
@@ -933,11 +933,11 @@ namespace HAL
 		switch (result.status)
 		{
 		case FakeNetworkManager::SendMessageResult::Status::Success:
-			return { ConnectionManager::SendMessageResult::Status::Success };
+			return { SendMessageResult::Status::Success };
 		case FakeNetworkManager::SendMessageResult::Status::ConnectionClosed:
-			return { ConnectionManager::SendMessageResult::Status::ConnectionClosed };
+			return { SendMessageResult::Status::ConnectionClosed };
 		default:
-			return { ConnectionManager::SendMessageResult::Status::UnknownFailure };
+			return { SendMessageResult::Status::UnknownFailure };
 		}
 	}
 
@@ -946,12 +946,12 @@ namespace HAL
 		// we don't need to do anything here
 	}
 
-	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedClientMessages(ConnectionId connectionId)
+	std::vector<std::pair<ConnectionId, Network::Message>> ConnectionManager::consumeReceivedClientMessages(const ConnectionId connectionId)
 	{
 		return StaticImpl().fakeNetworkManager->consumeReceivedClientMessages(connectionId);
 	}
 
-	void ConnectionManager::dropServerConnection(ConnectionId connectionId)
+	void ConnectionManager::dropServerConnection(const ConnectionId connectionId)
 	{
 		StaticImpl().fakeNetworkManager->dropConnection(connectionId);
 	}
@@ -987,7 +987,7 @@ namespace HAL
 		StaticImpl().fakeNetworkManager = std::make_unique<FakeNetworkManager>();
 	}
 
-	void ConnectionManager::debugAdvanceTime(u64 timeMs)
+	void ConnectionManager::debugAdvanceTime(const u64 timeMs)
 	{
 		StaticImpl().fakeNetworkManager->debugAdvanceTimeMilliseconds(timeMs);
 	}
