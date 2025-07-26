@@ -40,10 +40,32 @@ namespace HAL
 			std::unique_ptr<Impl> mPimpl;
 		};
 
-		struct Message
+		class Message
 		{
+		public:
+			Message() = default;
+			explicit Message(u32 type);
+			// copies the data
+			explicit Message(std::byte* rawData, size_t rawDataSize);
+			// copies the payload
+			explicit Message(u32 type, const std::vector<std::byte>& payload);
+
+			// reading the message
+			u32 readMessageType() const;
+			std::span<const std::byte> getPayloadRef() const;
+
+			// populating the message
+			void resizePayload(size_t payloadSize);
+			void reservePayload(size_t payloadSize);
+			void setMessageType(u32 type);
+			std::vector<std::byte>& getDataMutRef() { return data; }
+
+			// serialization
+			size_t getDataSize() const;
+			std::span<const std::byte> getDataRef() const;
+
+		private:
 			static constexpr size_t headerSize = sizeof(u32);
-			static constexpr size_t payloadStartPos = headerSize;
 
 			// data stores some meta information + payload and also can have extra unused space
 			// use cursorPos to determine data end (always set when message received from ConnectionManager)
@@ -56,23 +78,6 @@ namespace HAL
 			// if cursorPos == payloadStartPos or cursorPos == headerSize then only header with the empty data will be sent
 			// otherwise the data before cursorPos is sent
 			size_t cursorPos = 0;
-
-			Message() = default;
-			explicit Message(u32 type);
-			// copies data
-			explicit Message(std::byte* rawData, size_t rawDataSize);
-			// copies payload
-			explicit Message(u32 type, const std::vector<std::byte>& payload);
-
-			void resize(size_t payloadSize);
-			void reserve(size_t payloadSize);
-			void setMessageType(u32 type);
-			u32 readMessageType() const;
-
-			// helper functions
-			size_t getDataSize() const;
-			std::span<const std::byte> getDataSpan() const;
-			std::span<const std::byte> getPayloadSpan() const;
 		};
 
 		struct DebugBehavior

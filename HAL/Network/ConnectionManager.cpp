@@ -70,7 +70,7 @@ namespace HAL
 				sendFlags |= k_nSteamNetworkingSend_NoNagle;
 			}
 
-			SteamNetworkingSockets()->SendMessageToConnection(connection, message.data.data(), static_cast<uint32>(message.getDataSize()), sendFlags, nullptr);
+			SteamNetworkingSockets()->SendMessageToConnection(connection, message.getDataRef().data(), static_cast<uint32>(message.getDataSize()), sendFlags, nullptr);
 			return { ConnectionManager::SendMessageResult::Status::Success };
 		}
 	} // namespace ConnectionManagerInternal

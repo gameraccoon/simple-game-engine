@@ -50,7 +50,7 @@ namespace HAL
 			return std::nullopt;
 		}
 
-		NetworkAddress NetworkAddress::Ipv4(std::array<u8, 4> address, u16 port)
+		NetworkAddress NetworkAddress::Ipv4(const std::array<u8, 4> address, const u16 port)
 		{
 			SteamNetworkingIPAddr addr;
 			const uint32 ipAddressNumber = (address[0] << (3 * 8)) + (address[1] << (2 * 8)) + (address[2] << 8) + (address[3]);
@@ -58,7 +58,7 @@ namespace HAL
 			return NetworkAddress{ std::make_unique<NetworkAddress::Impl>(addr) };
 		}
 
-		NetworkAddress NetworkAddress::Ipv6(std::array<u8, 16> address, u16 port)
+		NetworkAddress NetworkAddress::Ipv6(const std::array<u8, 16> address, const u16 port)
 		{
 			SteamNetworkingIPAddr addr;
 			addr.SetIPv6(address.data(), port);
@@ -152,12 +152,12 @@ namespace HAL
 
 #endif // FAKE_NETWORK
 
-		Message::Message(u32 type)
+		Message::Message(const u32 type)
 		{
 			setMessageType(type);
 		}
 
-		Message::Message(std::byte* rawData, size_t rawDataSize)
+		Message::Message(std::byte* rawData, const size_t rawDataSize)
 			: data(rawData, rawData + rawDataSize)
 			, cursorPos(rawDataSize)
 		{
@@ -165,30 +165,9 @@ namespace HAL
 
 		Message::Message(const u32 type, const std::vector<std::byte>& payload)
 		{
-			resize(payload.size());
+			resizePayload(payload.size());
 			setMessageType(type);
-			std::copy(payload.begin(), payload.end(), data.begin() + payloadStartPos);
-		}
-
-		void Message::resize(size_t payloadSize)
-		{
-			data.resize(headerSize + payloadSize);
-		}
-
-		void Message::reserve(size_t payloadSize)
-		{
-			data.reserve(headerSize + payloadSize);
-		}
-
-		void Message::setMessageType(u32 type)
-		{
-			if (data.size() < headerSize)
-			{
-				resize(0);
-			}
-
-			size_t headerCursorPos = 0;
-			Serialization::WriteNumber<u32>(data, type, headerCursorPos);
+			std::copy(payload.begin(), payload.end(), data.begin() + headerSize);
 		}
 
 		u32 Message::readMessageType() const
@@ -197,17 +176,7 @@ namespace HAL
 			return Serialization::ReadNumber<u32>(data, headerCursorPos).value_or(0);
 		}
 
-		size_t Message::getDataSize() const
-		{
-			return cursorPos == 0 ? data.size() : cursorPos;
-		}
-
-		std::span<const std::byte> Message::getDataSpan() const
-		{
-			return std::span<const std::byte>(data.data(), getDataSize());
-		}
-
-		std::span<const std::byte> Message::getPayloadSpan() const
+		std::span<const std::byte> Message::getPayloadRef() const
 		{
 			const size_t dataSize = getDataSize();
 			if (dataSize < headerSize)
@@ -216,6 +185,37 @@ namespace HAL
 				return std::span<const std::byte>();
 			}
 			return std::span<const std::byte>(data.data() + headerSize, data.data() + dataSize);
+		}
+
+		void Message::resizePayload(const size_t payloadSize)
+		{
+			data.resize(headerSize + payloadSize);
+		}
+
+		void Message::reservePayload(const size_t payloadSize)
+		{
+			data.reserve(headerSize + payloadSize);
+		}
+
+		void Message::setMessageType(const u32 type)
+		{
+			if (data.size() < headerSize)
+			{
+				resizePayload(0);
+			}
+
+			size_t headerCursorPos = 0;
+			Serialization::WriteNumber<u32>(data, type, headerCursorPos);
+		}
+
+		size_t Message::getDataSize() const
+		{
+			return cursorPos == 0 ? data.size() : cursorPos;
+		}
+
+		std::span<const std::byte> Message::getDataRef() const
+		{
+			return std::span<const std::byte>(data.data(), getDataSize());
 		}
 	} // namespace Network
 } // namespace HAL
