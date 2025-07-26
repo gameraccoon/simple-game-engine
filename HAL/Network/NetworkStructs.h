@@ -2,6 +2,7 @@
 
 #include <array>
 #include <optional>
+#include <span>
 
 struct SteamNetworkingIPAddr;
 
@@ -62,10 +63,16 @@ namespace HAL
 			explicit Message(std::byte* rawData, size_t rawDataSize);
 			// copies payload
 			explicit Message(u32 type, const std::vector<std::byte>& payload);
+
 			void resize(size_t payloadSize);
 			void reserve(size_t payloadSize);
 			void setMessageType(u32 type);
 			u32 readMessageType() const;
+
+			// helper functions
+			size_t getDataSize() const;
+			std::span<const std::byte> getDataSpan() const;
+			std::span<const std::byte> getPayloadSpan() const;
 		};
 
 		struct DebugBehavior

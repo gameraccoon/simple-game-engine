@@ -45,7 +45,7 @@ namespace HAL
 			}
 		}
 
-		static ConnectionManager::SendMessageResult SendMessage(HSteamNetConnection connection, const Network::Message& message, ConnectionManager::MessageReliability reliability, bool noNagle)
+		static ConnectionManager::SendMessageResult SendMessage(const HSteamNetConnection connection, const Network::Message& message, ConnectionManager::MessageReliability reliability, const bool noNagle)
 		{
 			int sendFlags;
 			switch (reliability)
@@ -70,8 +70,7 @@ namespace HAL
 				sendFlags |= k_nSteamNetworkingSend_NoNagle;
 			}
 
-			size_t dataSize = (message.cursorPos == 0) ? message.data.size() : message.cursorPos;
-			SteamNetworkingSockets()->SendMessageToConnection(connection, message.data.data(), static_cast<uint32>(dataSize), sendFlags, nullptr);
+			SteamNetworkingSockets()->SendMessageToConnection(connection, message.data.data(), static_cast<uint32>(message.getDataSize()), sendFlags, nullptr);
 			return { ConnectionManager::SendMessageResult::Status::Success };
 		}
 	} // namespace ConnectionManagerInternal

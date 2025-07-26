@@ -163,7 +163,7 @@ namespace HAL
 		{
 		}
 
-		Message::Message(u32 type, const std::vector<std::byte>& payload)
+		Message::Message(const u32 type, const std::vector<std::byte>& payload)
 		{
 			resize(payload.size());
 			setMessageType(type);
@@ -195,6 +195,27 @@ namespace HAL
 		{
 			size_t headerCursorPos = 0;
 			return Serialization::ReadNumber<u32>(data, headerCursorPos).value_or(0);
+		}
+
+		size_t Message::getDataSize() const
+		{
+			return cursorPos == 0 ? data.size() : cursorPos;
+		}
+
+		std::span<const std::byte> Message::getDataSpan() const
+		{
+			return std::span<const std::byte>(data.data(), getDataSize());
+		}
+
+		std::span<const std::byte> Message::getPayloadSpan() const
+		{
+			const size_t dataSize = getDataSize();
+			if (dataSize < headerSize)
+			{
+				ReportErrorRelease("The message is too short to have a payload");
+				return std::span<const std::byte>();
+			}
+			return std::span<const std::byte>(data.data() + headerSize, data.data() + dataSize);
 		}
 	} // namespace Network
 } // namespace HAL
