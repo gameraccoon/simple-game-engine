@@ -66,7 +66,7 @@ private:
 #define SCOPED_PROFILER_IMPL(scopeName, namePostfix) \
 	ScopedProfiler SCOPED_PROFILER_NAME(cadg_inst_, namePostfix) { (scopeName) }
 // macro generates a unique instance name for us
-#define SCOPED_PROFILER(scopeName) SCOPED_PROFILER_IMPL((scopeName), __COUNTER__)
+#define SCOPED_PROFILER(scopeName) SCOPED_PROFILER_IMPL((scopeName), __LINE__)
 #else
 #define SCOPED_PROFILER(scopeName) \
 	do { \
